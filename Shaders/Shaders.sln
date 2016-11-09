@@ -31,13 +31,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E05_VertexManipulation", "E
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E04_PointLighting", "E04_PointLighting\E04_PointLighting.vcxproj", "{74DC65C7-634D-4C75-9BFC-B9A0E2866E37}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E06_RenderingToTexture", "M:\Year3\Shaders\Shaders\E06_RenderingToTexture\E06_RenderingToTexture.vcxproj", "{97BFAC29-910E-4A74-8811-EA8015EE4144}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E06_RenderingToTexture", "E06_RenderingToTexture\E06_RenderingToTexture.vcxproj", "{97BFAC29-910E-4A74-8811-EA8015EE4144}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E08_PostProcessing", "M:\Year3\Shaders\Shaders\E08_PostProcessing\E08_PostProcessing.vcxproj", "{637AC1D9-DFA9-467C-B20D-F3BD84723FD0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E09_Tesselation", "M:\gitRepos\graphicsShaders\Shaders\E09_Tesselation\E09_Tesselation.vcxproj", "{E6192A6E-01DC-41D0-A2BD-87523C0E8ABC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E09_Tesselation", "E09_Tesselation\E09_Tesselation.vcxproj", "{E6192A6E-01DC-41D0-A2BD-87523C0E8ABC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E10_ShadowMaps", "M:\gitRepos\graphicsShaders\Shaders\E10_ShadowMaps\E10_ShadowMaps.vcxproj", "{DDDC7F50-769A-4D7D-8AED-913CDA526BBB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E10_ShadowMaps", "E10_ShadowMaps\E10_ShadowMaps.vcxproj", "{DDDC7F50-769A-4D7D-8AED-913CDA526BBB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
