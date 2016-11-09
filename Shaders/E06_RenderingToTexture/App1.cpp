@@ -276,6 +276,8 @@ void App1::RenderScene()
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix;
 
+	deltaTime += 0.01f;
+
 	// Clear the scene. (default blue colour)
 	m_Direct3D->BeginScene(0.39f, 0.58f, 0.92f, 1.0f);
 

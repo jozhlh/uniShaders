@@ -1,7 +1,7 @@
 // Tessellation domain shader
 // After tessellation the domain shader processes the all the vertices
 
-cbuffer MatrixBuffer : register(cb0)
+cbuffer MatrixBuffer : register(b0)
 {
     matrix worldMatrix;
     matrix viewMatrix;
