@@ -24,6 +24,7 @@ bld/
 
 # Visual Studio 2015 cache/options directory
 .vs/
+
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
@@ -40,10 +41,10 @@ TestResult.xml
 [Rr]eleasePS/
 dlldata.c
 
+
 # DNX
 project.lock.json
 artifacts/
-
 *_i.c
 *_p.c
 *_i.h
@@ -73,8 +74,7 @@ artifacts/
 _Chutzpah*
 
 # Visual C++ cache files
-ipch/
-*.aps
+ipch/*.aps
 *.ncb
 *.opendb
 *.opensdf
@@ -140,6 +140,7 @@ publish/
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
+
 # TODO: Comment the next line if you want to checkin your web deploy settings
 # but database connection strings (with potential passwords) will be unencrypted
 *.pubxml
@@ -152,12 +153,16 @@ PublishScripts/
 
 # NuGet Packages
 *.nupkg
+
 # The packages folder can be ignored because of Package Restore
 **/packages/*
+
 # except build/, which is used as an MSBuild target.
 !**/packages/build/
+
 # Uncomment if necessary however generally it will be regenerated when needed
 #!**/packages/repositories.config
+
 # NuGet v3's project.json files produces more ignoreable files
 *.nuget.props
 *.nuget.targets
@@ -179,6 +184,7 @@ _pkginfo.txt
 # Visual Studio cache files
 # files ending in .cache can be ignored
 *.[Cc]ache
+
 # but keep track of directories ending in .cache
 !*.[Cc]ache/
 
@@ -250,3 +256,7 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# d3d compiler ignores
+![Dd]ebug/d3dcompiler_47.dll
+![Rr]elease/d3dcompiler_47.dll
