@@ -107,6 +107,9 @@ bool App1::Render()
 	//// Clear the scene. (default blue colour)
 	m_Direct3D->BeginScene(0.39f, 0.58f, 0.92f, 1.0f);
 
+	//// Turn on wireframe mode
+	m_Direct3D->TurnOnWireframe();
+
 	//// Generate the view matrix based on the camera's position.
 	m_Camera->Update();
 
