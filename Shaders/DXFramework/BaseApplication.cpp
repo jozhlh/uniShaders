@@ -86,10 +86,6 @@ bool BaseApplication::Frame()
 	io.MouseDown[0] = m_Input->isLeftMouseDown();
 	io.MouseDown[1] = m_Input->isRightMouseDown();
 	
-
-	bool show_test_window = true;
-	ImGui::ShowTestWindow(&show_test_window);
-
 	return true;
 }
 

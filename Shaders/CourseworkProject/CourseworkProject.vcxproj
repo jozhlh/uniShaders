@@ -121,6 +121,7 @@
     <ClCompile Include="ShadowShader.cpp" />
     <ClCompile Include="SpecularLightShader.cpp" />
     <ClCompile Include="TextureShader.cpp" />
+    <ClCompile Include="UiManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h" />
@@ -128,6 +129,7 @@
     <ClInclude Include="ShadowShader.h" />
     <ClInclude Include="SpecularLightShader.h" />
     <ClInclude Include="TextureShader.h" />
+    <ClInclude Include="UiManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\depth_ps.hlsl">

@@ -4,7 +4,7 @@
 
 App1::App1()
 {
-	m_Mesh = nullptr;
+	m_SphereMesh = nullptr;
 	m_PlaneMesh = nullptr;
 	m_LightShader = nullptr;
 	m_Light = nullptr;
@@ -18,9 +18,13 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Call super init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in);
 
+	// Create UI Object
+	m_UiManager = new UiManager;
+
 	// Create Mesh objects with checkerboard texture
-	m_Mesh = new SphereMesh(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png");
+	m_SphereMesh = new SphereMesh(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png");
 	m_PlaneMesh = new PlaneMesh(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png");
+	m_Spaceship = new Model(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png", L"../res/smallaxe.obj");
 
 	// Create light shader object
 	m_LightShader = new SpecularLightShader(m_Direct3D->GetDevice(), hwnd);
@@ -49,11 +53,18 @@ App1::~App1()
 	// Run base application deconstructor
 	BaseApplication::~BaseApplication();
 
-	// Release the Direct3D object.
-	if (m_Mesh)
+	// Release the UI object.
+	if (m_UiManager)
 	{
-		delete m_Mesh;
-		m_Mesh = 0;
+		delete m_UiManager;
+		m_UiManager = 0;
+	}
+
+	// Release the Direct3D object.
+	if (m_SphereMesh)
+	{
+		delete m_SphereMesh;
+		m_SphereMesh = 0;
 	}
 
 	// Release the Direct3D object.
@@ -61,6 +72,12 @@ App1::~App1()
 	{
 		delete m_PlaneMesh;
 		m_PlaneMesh = 0;
+	}
+
+	if (m_Spaceship)
+	{
+		delete m_Spaceship;
+		m_Spaceship = 0;
 	}
 
 	// Release the shader
@@ -84,7 +101,14 @@ bool App1::Frame()
 	bool result;
 
 	result = BaseApplication::Frame();
-	if (!result)
+
+	if (result)
+	{
+		bool show_test_window = true;
+		//ImGui::ShowTestWindow(&show_test_window);
+		m_UiManager->ShowUi(&show_test_window);
+	}
+	else
 	{
 		return false;
 	}
@@ -121,11 +145,26 @@ bool App1::Render()
 	// translate sphere mesh
 	//worldMatrix = XMMatrixTranslation(0.0, -10.0, 30.0);
 	//// Send geometry data (from mesh)
-	m_Mesh->SendData(m_Direct3D->GetDeviceContext());
+	m_SphereMesh->SendData(m_Direct3D->GetDeviceContext());
 	//// Set shader parameters (matrices and texture)
-	m_LightShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_Mesh->GetTexture(), m_Light, m_Camera->GetPosition());
+	m_LightShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_SphereMesh->GetTexture(), m_Light, m_Camera->GetPosition());
 	//// Render object (combination of mesh geometry and shader process
-	m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Mesh->GetIndexCount());
+	m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_SphereMesh->GetIndexCount());
+
+	// translate rock mesh
+	
+	//worldMatrix = XMMatrixTranslation(100.0, 0.0, 30.0);
+	worldMatrix = XMMatrixScaling(20, 20, 20);
+	//// Send geometry data (from mesh)
+	m_Spaceship->SendData(m_Direct3D->GetDeviceContext());
+	//// Set shader parameters (matrices and texture)
+	m_LightShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_Spaceship->GetTexture(), m_Light, m_Camera->GetPosition());
+	//// Render object (combination of mesh geometry and shader process
+	m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Spaceship->GetIndexCount());
+	// translate back to origin
+	worldMatrix = XMMatrixScaling(0.05, 0.05, 0.05);
+	//worldMatrix = XMMatrixTranslation(-50.0, 0.0, -30.0);
+
 	
 	// translate plane mesh
 	worldMatrix = XMMatrixTranslation(-30.0, -17.0, -30.0);

@@ -14,6 +14,7 @@
 #include "ShadowShader.h"
 #include "SpecularLightShader.h"
 #include "TextureShader.h"
+#include "UiManager.h"
 
 class App1 : public BaseApplication
 {
@@ -29,9 +30,11 @@ protected:
 	bool Render();
 
 private:
+	UiManager* m_UiManager;
 	SpecularLightShader* m_LightShader;
-	SphereMesh* m_Mesh;
+	SphereMesh* m_SphereMesh;
 	PlaneMesh* m_PlaneMesh;
+	Model* m_Spaceship;
 	Light* m_Light;
 	float iterator = 0;
 
