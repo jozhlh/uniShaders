@@ -6,6 +6,7 @@
 #include "../DXFramework/baseapplication.h"
 #include "D3D.h"
 #include "../DXFramework/TessellationMesh.h"
+#include "../DXFramework/TessellationSphere.h"
 #include "../DXFramework/spheremesh.h"
 #include "../DXFramework/planemesh.h"
 #include "../DXFramework/Timer.h"

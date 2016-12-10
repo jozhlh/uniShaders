@@ -99,9 +99,11 @@
     <ClInclude Include="PointMesh.h" />
     <ClInclude Include="QuadMesh.h" />
     <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="SphereMesh.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="TessellationMesh.h" />
+    <ClInclude Include="TessellationSphere.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TokenStream.h" />
@@ -127,9 +129,11 @@
     <ClCompile Include="PointMesh.cpp" />
     <ClCompile Include="QuadMesh.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="SphereMesh.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="TessellationMesh.cpp" />
+    <ClCompile Include="TessellationSphere.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TokenStream.cpp" />

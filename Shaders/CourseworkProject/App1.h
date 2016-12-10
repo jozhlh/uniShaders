@@ -5,15 +5,20 @@
 // Includes
 #include "../DXFramework/baseapplication.h"
 #include "D3D.h"
+#include "../DXFramework/tessellationsphere.h"
+#include "../DXFramework/tessellationmesh.h"
 #include "../DXFramework/orthomesh.h"
 #include "../DXFramework/rendertexture.h"
 #include "../DXFramework/spheremesh.h"
 #include "../DXFramework/planemesh.h"
 #include "../DXFramework/model.h"
+#include "../DXFramework/Sphere.h"
+#include "../DXFramework/Timer.h"
 #include "DepthShader.h"
 #include "ShadowShader.h"
 #include "SpecularLightShader.h"
 #include "TextureShader.h"
+#include "tessellationshader.h"
 #include "UiManager.h"
 
 class App1 : public BaseApplication
@@ -32,11 +37,16 @@ protected:
 private:
 	UiManager* m_UiManager;
 	SpecularLightShader* m_LightShader;
-	SphereMesh* m_SphereMesh;
+	TessellationShader* m_TessellationShader;
+	TessellationMesh* m_testTesMesh;
+	TessellationSphere* m_SphereMesh;
 	PlaneMesh* m_PlaneMesh;
 	Model* m_Spaceship;
+	Light* m_PrimaryLight;
 	Light* m_Light;
+	Timer* m_Timer;
 	float iterator = 0;
+	float sphereLerp;
 
 
 };

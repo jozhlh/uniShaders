@@ -22,28 +22,38 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	m_UiManager = new UiManager;
 
 	// Create Mesh objects with checkerboard texture
-	m_SphereMesh = new SphereMesh(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png");
+	m_SphereMesh = new TessellationSphere(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png", 20.0f);
 	m_PlaneMesh = new PlaneMesh(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png");
 	m_Spaceship = new Model(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png", L"../res/smallaxe.obj");
+	//m_testTesMesh = new TessellationMesh(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png");
 
 	// Create light shader object
 	m_LightShader = new SpecularLightShader(m_Direct3D->GetDevice(), hwnd);
+
+	// Create Tesselation Shader Object
+	m_TessellationShader = new TessellationShader(m_Direct3D->GetDevice(), hwnd);
 
 	// Create Light object
 	m_Light = new Light;
 
 	// Initialise light properties
 	m_Light->SetAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
-
 	m_Light->SetDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-
 	m_Light->SetDirection(0.5f, -0.5f, 0.0f);
-
 	m_Light->SetPosition(50.0f, 5.0f, 50.0f);
-
 	m_Light->SetSpecularPower(10.0f);
-
 	m_Light->SetSpecularColour(0.0f, 0.0f, 1.0f, 1.0f);
+
+	m_PrimaryLight = new Light;
+	m_PrimaryLight->SetAmbientColour(0.1f, 0.0f, 0.0f, 1.0f);
+	m_PrimaryLight->SetDiffuseColour(1.0f, 1.0f, 0.0f, 1.0f);
+	m_PrimaryLight->SetDirection(0.5f, -0.5f, 0.0f);
+	m_PrimaryLight->SetSpecularPower(25.0f);
+	m_PrimaryLight->SetSpecularColour(1.0f, 0.0f, 0.0f, 1.0f);
+
+	m_Timer = new Timer;
+
+	sphereLerp = m_UiManager->animationSpeed;
 
 }
 
@@ -66,6 +76,11 @@ App1::~App1()
 		delete m_SphereMesh;
 		m_SphereMesh = 0;
 	}
+	if (m_testTesMesh)
+	{
+		delete m_testTesMesh;
+		m_testTesMesh = 0;
+	}
 
 	// Release the Direct3D object.
 	if (m_PlaneMesh)
@@ -86,6 +101,11 @@ App1::~App1()
 		delete m_LightShader;
 		m_LightShader = 0;
 	}
+	if (m_TessellationShader)
+	{
+		delete m_TessellationShader;
+		m_TessellationShader = 0;
+	}
 
 	// Release the Light object.
 	if (m_Light)
@@ -93,17 +113,61 @@ App1::~App1()
 		delete m_Light;
 		m_Light = 0;
 	}
+
+	if (m_PrimaryLight)
+	{
+		delete m_PrimaryLight;
+		m_PrimaryLight = 0;
+	}
 }
 
 
 bool App1::Frame()
 {
+	m_Timer->Frame();
+	float dt = m_Timer->GetTime();
+	float animCap = 20.0f;
+
 	bool result;
 
 	result = BaseApplication::Frame();
 
 	if (result)
 	{
+		m_PrimaryLight->SetPosition(-30.0f, 0.0f, 30.0f);
+		m_PrimaryLight->SetLookAt(1.0f, 0.0f, 0.0f);
+
+		sphereLerp = m_UiManager->tessellationWarp.lerpAmount * animCap;
+		if (m_UiManager->playAnimation)
+		{
+			if (m_UiManager->tessellationWarp.targetSin)
+			{
+				if (sphereLerp < animCap)
+				{
+					sphereLerp += (dt * m_UiManager->animationSpeed);
+				}
+				else if (m_UiManager->playAnimation)
+				{
+					m_UiManager->tessellationWarp.targetSin = false;
+				}
+			}
+			else
+			{
+				if (sphereLerp > 0.0f)
+				{
+					sphereLerp -= (dt * m_UiManager->animationSpeed);
+				}
+				else if (m_UiManager->playAnimation)
+				{
+					m_UiManager->tessellationWarp.targetSin = true;
+				}
+			}
+		}
+		
+		// Lerp between surface modifiers
+		m_UiManager->tessellationWarp.lerpAmount = sphereLerp / animCap;
+
+
 		bool show_test_window = true;
 		//ImGui::ShowTestWindow(&show_test_window);
 		m_UiManager->ShowUi(&show_test_window);
@@ -132,7 +196,7 @@ bool App1::Render()
 	m_Direct3D->BeginScene(0.39f, 0.58f, 0.92f, 1.0f);
 
 	//// Turn on wireframe mode
-	m_Direct3D->TurnOnWireframe();
+	//m_Direct3D->TurnOnWireframe();
 
 	//// Generate the view matrix based on the camera's position.
 	m_Camera->Update();
@@ -142,28 +206,36 @@ bool App1::Render()
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	// translate sphere mesh
-	//worldMatrix = XMMatrixTranslation(0.0, -10.0, 30.0);
+	
+
+	// Translate sphere mesh
+	worldMatrix = XMMatrixScaling(m_UiManager->sphereSize, m_UiManager->sphereSize, m_UiManager->sphereSize) + XMMatrixTranslation(m_UiManager->spherePosition.x, m_UiManager->spherePosition.y, m_UiManager->spherePosition.z);
 	//// Send geometry data (from mesh)
 	m_SphereMesh->SendData(m_Direct3D->GetDeviceContext());
 	//// Set shader parameters (matrices and texture)
-	m_LightShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_SphereMesh->GetTexture(), m_Light, m_Camera->GetPosition());
+	m_TessellationShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_SphereMesh->GetTexture(),
+		m_UiManager->tessellationSetup, m_UiManager->tessellationWarp, m_PrimaryLight, m_Camera->GetPosition());
 	//// Render object (combination of mesh geometry and shader process
-	m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_SphereMesh->GetIndexCount());
+	m_TessellationShader->Render(m_Direct3D->GetDeviceContext(), m_SphereMesh->GetIndexCount());
+	// Reset world matrix
+	float deScale = 1.0f;
+	if (deScale > 0) deScale = 1.0f / m_UiManager->sphereSize;
+	worldMatrix = XMMatrixScaling(deScale, deScale, deScale);
+
 
 	// translate rock mesh
 	
-	//worldMatrix = XMMatrixTranslation(100.0, 0.0, 30.0);
-	worldMatrix = XMMatrixScaling(20, 20, 20);
+	worldMatrix = XMMatrixTranslation(10, -5.0, 10.0);
+	//worldMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f);
 	//// Send geometry data (from mesh)
-	m_Spaceship->SendData(m_Direct3D->GetDeviceContext());
+	//m_Spaceship->SendData(m_Direct3D->GetDeviceContext());
 	//// Set shader parameters (matrices and texture)
-	m_LightShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_Spaceship->GetTexture(), m_Light, m_Camera->GetPosition());
+	//m_LightShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_Spaceship->GetTexture(), m_Light, m_Camera->GetPosition());
 	//// Render object (combination of mesh geometry and shader process
-	m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Spaceship->GetIndexCount());
+	//m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Spaceship->GetIndexCount());
 	// translate back to origin
-	worldMatrix = XMMatrixScaling(0.05, 0.05, 0.05);
-	//worldMatrix = XMMatrixTranslation(-50.0, 0.0, -30.0);
+	//worldMatrix = XMMatrixScaling(100, 100, 100);
+	worldMatrix = XMMatrixTranslation(-10.0, 5.0, -10.0);
 
 	
 	// translate plane mesh

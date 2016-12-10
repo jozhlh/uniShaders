@@ -117,6 +117,12 @@
     <ClInclude Include="imgui-master\imgui_impl_dx11.h">
       <Filter>imgui</Filter>
     </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Header Files\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="TessellationSphere.h">
+      <Filter>Header Files\Geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseMesh.cpp">
@@ -196,6 +202,12 @@
     </ClCompile>
     <ClCompile Include="imgui-master\imgui_impl_dx11.cpp">
       <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="TessellationSphere.cpp">
+      <Filter>Source Files\Geometry</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -117,7 +117,7 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight)
 	m_hinstance = GetModuleHandle(NULL);
 
 	// Give the application a name.
-	m_applicationName = L"Engine";
+	m_applicationName = L"Graphics Programming with Shaders - Josh Hale";
 
 	// Setup the windows class with default settings.
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -160,17 +160,21 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight)
 	else
 	{
 		// If windowed then set it to 800x600 resolution.
-		screenWidth = 800;
-		screenHeight = 600;
+		screenWidth = SCREEN_WIDTH;
+		screenHeight = SCREEN_HEIGHT;
 
 		// Place the window in the middle of the screen.
 		posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
 		posY = (GetSystemMetrics(SM_CYSCREEN) - screenHeight) / 2;
 	}
 
-	// Create the window with the screen settings and get the handle to it.
-	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
+	// Create the window with the screen settings and get the handle to it. //WS_EX_APPWINDOW
+	/*m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+		posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);*/
+
+	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
+		WS_TILEDWINDOW,
 		posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
 
 	// Bring the window up on the screen and set it as main focus.

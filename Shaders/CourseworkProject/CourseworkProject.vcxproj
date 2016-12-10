@@ -120,6 +120,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ShadowShader.cpp" />
     <ClCompile Include="SpecularLightShader.cpp" />
+    <ClCompile Include="TessellationShader.cpp" />
     <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="UiManager.cpp" />
   </ItemGroup>
@@ -128,6 +129,7 @@
     <ClInclude Include="DepthShader.h" />
     <ClInclude Include="ShadowShader.h" />
     <ClInclude Include="SpecularLightShader.h" />
+    <ClInclude Include="TessellationShader.h" />
     <ClInclude Include="TextureShader.h" />
     <ClInclude Include="UiManager.h" />
   </ItemGroup>
@@ -148,6 +150,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\shadow_vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\tessellation_ds.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\tessellation_hs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\tessellation_ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\tessellation_vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\texture_ps.hlsl">

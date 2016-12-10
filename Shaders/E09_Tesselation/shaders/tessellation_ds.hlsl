@@ -63,12 +63,3 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
     return output;
 }
 
-float Turbulence(float x, float y, float z, float f)
-{
-	float t = -.5f;
-	for (; f < 800 / 12; f += 2)
-	{
-		t+= 
-	}
-}
-
