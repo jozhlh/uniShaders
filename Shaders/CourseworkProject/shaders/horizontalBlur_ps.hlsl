@@ -15,18 +15,12 @@ struct InputType
 
 float4 main(InputType input) : SV_TARGET
 {
- //   float weight0, weight1, weight2;
     float4 colour;
-
-	// Create the weights that each neighbor pixel will contribute to the blur.
-	//weight0 = 0.4062f;
- //   weight1 = 0.2442f;
- //   weight2 = 0.0545f;
 
 	// Initialize the colour to black.
     colour = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-    // Add the nine horizontal pixels to the colour by the specific weight of each.
+    // Add the five horizontal pixels to the colour by the specific weight of each.
     colour += shaderTexture.Sample(SampleType, input.texCoord1) * input.blurWeights.z;
     colour += shaderTexture.Sample(SampleType, input.texCoord2) * input.blurWeights.y;
     colour += shaderTexture.Sample(SampleType, input.texCoord3) * input.blurWeights.x;

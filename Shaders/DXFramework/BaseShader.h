@@ -21,8 +21,6 @@ protected:
 		XMMATRIX world;
 		XMMATRIX view;
 		XMMATRIX projection;
-		XMMATRIX lightView;
-		XMMATRIX lightProjection;
 	};
 
 public:

@@ -16,32 +16,27 @@ TessellationShader::~TessellationShader()
 		m_sampleState->Release();
 		m_sampleState = 0;
 	}
-
-	// Release the matrix constant buffer.
+	// Release shader constant buffers
 	if (m_tessellationSetupBuffer)
 	{
 		m_tessellationSetupBuffer->Release();
 		m_tessellationSetupBuffer = 0;
 	}
-
 	if (m_tessellationWarpBuffer)
 	{
 		m_tessellationWarpBuffer->Release();
 		m_tessellationWarpBuffer = 0;
 	}
-
-	if (m_lightBuffer)
+	if (m_geometryBuffer)
 	{
-		m_lightBuffer->Release();
-		m_lightBuffer = 0;
+		m_geometryBuffer->Release();
+		m_geometryBuffer = 0;
 	}
-
 	if (m_cameraBuffer)
 	{
 		m_cameraBuffer->Release();
 		m_cameraBuffer = 0;
 	}
-
 	if (m_matrixBuffer)
 	{
 		m_matrixBuffer->Release();
@@ -98,26 +93,6 @@ void TessellationShader::InitShader(WCHAR* vsFilename,  WCHAR* psFilename)
 
 	// Create the texture sampler state.
 	m_device->CreateSamplerState(&samplerDesc, &m_sampleState);
-
-	// Required a CLAMPED sampler for sampling the depth map
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	// Create the texture sampler state.
-	m_device->CreateSamplerState(&samplerDesc, &m_sampleStateClamp);
-
-	// Setup light buffer
-	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
-	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
-	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
-	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightBufferDesc.MiscFlags = 0;
-	lightBufferDesc.StructureByteStride = 0;
-
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	m_device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
 
 	// Setup camera buffer
 	// Setup the description of the camera dynamic constant buffer that is in the pixel shader.
@@ -184,19 +159,18 @@ void TessellationShader::InitShader(WCHAR* vsFilename, WCHAR* hsFilename, WCHAR*
 
 void TessellationShader::SetShaderParameters(
 	ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture,
-	TessellationSetupType setup, ID3D11ShaderResourceView* depthMap, TessellationWarpType warp, float explode, Light* light, XMFLOAT3 cam)
+	TessellationSetupType setup, TessellationWarpType warp, float explode, XMFLOAT3 cam)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 	TessellationSetupType* tessSetupPtr;
 	TessellationWarpType* tessWarpPtr;
-	LightBufferType* lightPtr;
 	CameraBufferType* cameraPtr;
 	GeometryBufferType* geometryPtr;
 	unsigned int bufferNumber;
-	XMMATRIX tworld, tview, tproj, tLightViewMatrix, tLightProjectionMatrix;
-
+	XMMATRIX tworld, tview, tproj;
+	
 	///
 	// Set Matrix Buffer
 	///
@@ -205,9 +179,7 @@ void TessellationShader::SetShaderParameters(
 	tworld = XMMatrixTranspose(worldMatrix);
 	tview = XMMatrixTranspose(viewMatrix);
 	tproj = XMMatrixTranspose(projectionMatrix);
-	tLightViewMatrix = XMMatrixTranspose(light->GetViewMatrix());
-	tLightProjectionMatrix = XMMatrixTranspose(light->GetOrthographicMatrix());
-
+	
 	// Lock the constant buffer so it can be written to.
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
@@ -218,9 +190,7 @@ void TessellationShader::SetShaderParameters(
 	dataPtr->world = tworld;// worldMatrix;
 	dataPtr->view = tview;
 	dataPtr->projection = tproj;
-	dataPtr->lightView = tLightViewMatrix;
-	dataPtr->lightProjection = tLightProjectionMatrix;
-
+	
 	// Unlock the constant buffer.
 	deviceContext->Unmap(m_matrixBuffer, 0);
 
@@ -234,25 +204,6 @@ void TessellationShader::SetShaderParameters(
 
 	// Set shader texture resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
-	// Set shader depth map texture resource.
-	deviceContext->PSSetShaderResources(1, 1, &depthMap);
-	///
-	// Set Light Buffer
-	///
-
-	// Send light data to pixel shader
-	deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	lightPtr = (LightBufferType*)mappedResource.pData;
-	lightPtr->ambient = light->GetAmbientColour();
-	lightPtr->diffuse = light->GetDiffuseColour();
-	lightPtr->direction = light->GetDirection();
-	lightPtr->specularPower = light->GetSpecularPower();
-	lightPtr->specularColor = light->GetSpecularColour();
-	lightPtr->position = light->GetPosition();
-	lightPtr->padding = 1.0f;
-	deviceContext->Unmap(m_lightBuffer, 0);
-	bufferNumber = 4;
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
 	///
 	// Set Camera Buffer
@@ -261,10 +212,8 @@ void TessellationShader::SetShaderParameters(
 	// Send camera data to pixel shader
 	deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	cameraPtr = (CameraBufferType*)mappedResource.pData;
-	cameraPtr->lightPosition = light->GetPosition();
 	cameraPtr->cameraPosition = cam;
 	cameraPtr->padding = 0.0f;
-	cameraPtr->padding1 = 0.0f;
 	deviceContext->Unmap(m_cameraBuffer, 0);
 	bufferNumber = 3;
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
@@ -307,9 +256,7 @@ void TessellationShader::SetShaderParameters(
 	tessWarpPtr->repeats = warp.repeats;
 	tessWarpPtr->severity = warp.severity;
 	tessWarpPtr->targetSin = warp.targetSin;
-	tessWarpPtr->lightPosition = light->GetPosition();
-	tessWarpPtr->padding = 1.0f;
-
+	
 	// Unlock the buffer
 	deviceContext->Unmap(m_tessellationWarpBuffer, 0);
 	// Set buffer number (register value)
@@ -342,11 +289,8 @@ void TessellationShader::SetShaderParameters(
 void TessellationShader::Render(ID3D11DeviceContext* deviceContext, int indexCount)
 {
 	// Set the sampler state in the pixel shader.
-	//deviceContext->PSSetSamplers(0, 1, &m_sampleState);
-	// Set the sampler state in the pixel shader.
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
-	deviceContext->PSSetSamplers(1, 1, &m_sampleStateClamp);
-
+	
 	// Base render function.
 	BaseShader::Render(deviceContext, indexCount);
 }

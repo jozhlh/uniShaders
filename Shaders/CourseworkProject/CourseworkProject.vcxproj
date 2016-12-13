@@ -116,12 +116,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App1.cpp" />
-    <ClCompile Include="DepthShader.cpp" />
-    <ClCompile Include="GeometryShader.cpp" />
     <ClCompile Include="HorizontalBlurShader.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ShadowShader.cpp" />
-    <ClCompile Include="SpecularLightShader.cpp" />
     <ClCompile Include="TessellationShader.cpp" />
     <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="UiManager.cpp" />
@@ -129,39 +125,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h" />
-    <ClInclude Include="DepthShader.h" />
-    <ClInclude Include="GeometryShader.h" />
     <ClInclude Include="HorizontalBlurShader.h" />
-    <ClInclude Include="ShadowShader.h" />
-    <ClInclude Include="SpecularLightShader.h" />
     <ClInclude Include="TessellationShader.h" />
     <ClInclude Include="TextureShader.h" />
     <ClInclude Include="UiManager.h" />
     <ClInclude Include="VerticalBlurShader.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shaders\depth_ps.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="shaders\depth_vs.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
     <FxCompile Include="shaders\horizontalBlur_ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\horizontalBlur_vs.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="shaders\light_ps.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="shaders\light_vs.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="shaders\shadow_ps.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="shaders\shadow_vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\tessellation_ds.hlsl">
@@ -185,27 +159,10 @@
     <FxCompile Include="shaders\triangle_gs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="shaders\triangle_ps.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="shaders\triangle_vs.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
     <FxCompile Include="shaders\verticalBlur_ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\verticalBlur_vs.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="tessellationDepth_ds.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Domain</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Domain</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Domain</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Domain</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>

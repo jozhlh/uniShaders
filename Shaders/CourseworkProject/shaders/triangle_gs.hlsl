@@ -3,8 +3,6 @@ cbuffer MatrixBuffer : register(b0)
     matrix worldMatrix;
     matrix viewMatrix;
     matrix projectionMatrix;
-    matrix lightView;
-    matrix lightProjection;
 };
 
 cbuffer GeometryBuffer : register(b1)
@@ -29,14 +27,9 @@ struct OutputType
 {
     float4 position : SV_POSITION;
     float4 colour : COLOR;
-    float3 viewDirection : TEXCOORD1;
-    float3 normal : NORMAL;
-    float3 position3D : TEXCOORD2;
-    float3 lightPos : TEXCOORD3;
-    float4 lightViewPosition : TEXCOORD4;
 };
 
-// gs function
+// gs function, receives triangles which it displaces before outputting again
 [maxvertexcount(3)]
 void main(triangle InputType input[3], inout TriangleStream<OutputType> triStream)
 {
@@ -57,15 +50,6 @@ void main(triangle InputType input[3], inout TriangleStream<OutputType> triStrea
 
 
     output.colour = input[0].colour;
-    output.viewDirection = input[0].viewDirection;
-    output.normal = input[0].normal;
-    output.position3D = input[0].position3D;
-    output.lightPos = input[0].lightPos;
-    output.lightViewPosition = input[0].lightViewPosition;
-	//output.tex = input[0].tex;
-
-   // output.normal = mul(input[0].normal, (float3x3)worldMatrix);
-    //output.normal = normalize(output.normal);
 
 	triStream.Append(output);
 
@@ -82,11 +66,6 @@ void main(triangle InputType input[3], inout TriangleStream<OutputType> triStrea
     output.position = mul(output.position, projectionMatrix);
 
     output.colour = input[1].colour;
-    output.viewDirection = input[1].viewDirection;
-    output.normal = input[1].normal;
-    output.position3D = input[1].position3D;
-    output.lightPos = input[1].lightPos;
-    output.lightViewPosition = input[1].lightViewPosition;
 
     triStream.Append(output);
 
@@ -103,11 +82,6 @@ void main(triangle InputType input[3], inout TriangleStream<OutputType> triStrea
     output.position = mul(output.position, projectionMatrix);
 
     output.colour = input[2].colour;
-    output.viewDirection = input[2].viewDirection;
-    output.normal = input[2].normal;
-    output.position3D = input[2].position3D;
-    output.lightPos = input[2].lightPos;
-    output.lightViewPosition = input[2].lightViewPosition;
 
     triStream.Append(output);
 

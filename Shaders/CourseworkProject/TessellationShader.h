@@ -23,25 +23,10 @@ struct TessellationWarpType
 	float lerpAmount;
 	XMFLOAT3 baseColour;
 	bool targetSin;
-	XMFLOAT3 lightPosition;
-	float padding;
-};
-
-struct LightBufferType
-{
-	XMFLOAT4 ambient;
-	XMFLOAT4 diffuse;
-	XMFLOAT3 direction;
-	float specularPower;
-	XMFLOAT4 specularColor;
-	XMFLOAT3 position;
-	float padding;
 };
 
 struct CameraBufferType
 {
-	XMFLOAT3 lightPosition;
-	float padding1;
 	XMFLOAT3 cameraPosition;
 	float padding;
 };
@@ -71,11 +56,9 @@ private:
 	ID3D11Buffer* m_matrixBuffer;
 	ID3D11Buffer* m_tessellationSetupBuffer;
 	ID3D11Buffer* m_tessellationWarpBuffer;
-	ID3D11Buffer* m_lightBuffer;
 	ID3D11Buffer* m_geometryBuffer;
 	ID3D11Buffer* m_cameraBuffer;
 	ID3D11SamplerState* m_sampleState;
-	ID3D11SamplerState* m_sampleStateClamp;
 };
 
 #endif
