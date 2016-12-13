@@ -3,15 +3,14 @@
 
 cbuffer TessellationSetupBuffer : register(b1)
 {
-	int3 edgeSplitting;
-	int innerSplitting;
+    int3 edgeSplitting;
+    int innerSplitting;
 }
 
 struct InputType
 {
     float3 position : POSITION;
     float4 colour : COLOR;
-	float3 viewDirection : TEXCOORD1;
 };
 
 struct ConstantOutputType
@@ -24,7 +23,6 @@ struct OutputType
 {
     float3 position : POSITION;
     float4 colour : COLOR;
-	float3 viewDirection : TEXCOORD1;
 };
 
 ConstantOutputType PatchConstantFunction(InputPatch<InputType, 3> inputPatch, uint patchId : SV_PrimitiveID)

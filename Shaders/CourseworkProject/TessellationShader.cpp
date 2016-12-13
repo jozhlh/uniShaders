@@ -32,11 +32,6 @@ TessellationShader::~TessellationShader()
 		m_geometryBuffer->Release();
 		m_geometryBuffer = 0;
 	}
-	if (m_cameraBuffer)
-	{
-		m_cameraBuffer->Release();
-		m_cameraBuffer = 0;
-	}
 	if (m_matrixBuffer)
 	{
 		m_matrixBuffer->Release();
@@ -93,19 +88,6 @@ void TessellationShader::InitShader(WCHAR* vsFilename,  WCHAR* psFilename)
 
 	// Create the texture sampler state.
 	m_device->CreateSamplerState(&samplerDesc, &m_sampleState);
-
-	// Setup camera buffer
-	// Setup the description of the camera dynamic constant buffer that is in the pixel shader.
-	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
-	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
-	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cameraBufferDesc.MiscFlags = 0;
-	cameraBufferDesc.StructureByteStride = 0;
-
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	m_device->CreateBuffer(&cameraBufferDesc, NULL, &m_cameraBuffer);
 }
 
 void TessellationShader::InitShader(WCHAR* vsFilename, WCHAR* hsFilename, WCHAR* gsFilename, WCHAR* dsFilename, WCHAR* psFilename)
@@ -159,14 +141,13 @@ void TessellationShader::InitShader(WCHAR* vsFilename, WCHAR* hsFilename, WCHAR*
 
 void TessellationShader::SetShaderParameters(
 	ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture,
-	TessellationSetupType setup, TessellationWarpType warp, float explode, XMFLOAT3 cam)
+	TessellationSetupType setup, TessellationWarpType warp, float explode)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 	TessellationSetupType* tessSetupPtr;
 	TessellationWarpType* tessWarpPtr;
-	CameraBufferType* cameraPtr;
 	GeometryBufferType* geometryPtr;
 	unsigned int bufferNumber;
 	XMMATRIX tworld, tview, tproj;
@@ -204,19 +185,6 @@ void TessellationShader::SetShaderParameters(
 
 	// Set shader texture resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
-
-	///
-	// Set Camera Buffer
-	///
-
-	// Send camera data to pixel shader
-	deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	cameraPtr = (CameraBufferType*)mappedResource.pData;
-	cameraPtr->cameraPosition = cam;
-	cameraPtr->padding = 0.0f;
-	deviceContext->Unmap(m_cameraBuffer, 0);
-	bufferNumber = 3;
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
 
 	///
 	// Set Tessellation Setup Buffer

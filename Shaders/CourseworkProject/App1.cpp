@@ -161,12 +161,12 @@ bool App1::Frame()
 
 	if (!result) return false;
 
+	// Get animation position from UI
+	sphereLerp = m_UiManager->tessellationWarp.lerpAmount * ANIM_CAP;
+
 	// If the sphere is being animated
 	if (m_UiManager->playAnimation)
 	{
-		// Move the animation forward a step
-		sphereLerp = m_UiManager->tessellationWarp.lerpAmount * ANIM_CAP;
-
 		// Choose which direction the animation is going
 		if (m_UiManager->tessellationWarp.targetSin)
 		{
@@ -337,7 +337,7 @@ bool App1::RenderToTexture()
 	m_SphereMesh->SendData(m_Direct3D->GetDeviceContext());
 	//// Set shader parameters (matrices and texture)
 	m_TessellationShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_SphereMesh->GetTexture(),
-		m_UiManager->tessellationSetup, m_UiManager->tessellationWarp, m_UiManager->explode, m_Camera->GetPosition());
+		m_UiManager->tessellationSetup, m_UiManager->tessellationWarp, m_UiManager->explode);
 	//// Render object (combination of mesh geometry and shader process
 	m_TessellationShader->Render(m_Direct3D->GetDeviceContext(), m_SphereMesh->GetIndexCount());
 	// Reset world matrix

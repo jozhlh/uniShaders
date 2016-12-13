@@ -28,7 +28,6 @@ struct InputType
 {
     float3 position : POSITION;
     float4 colour : COLOR;
-	float3 viewDirection : TEXCOORD1;
 };
 
 struct OutputType

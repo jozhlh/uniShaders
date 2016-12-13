@@ -15,11 +15,6 @@ struct InputType
 {
     float4 position : SV_POSITION;
     float4 colour : COLOR;
-    float3 viewDirection : TEXCOORD1;
-    float3 normal : NORMAL;
-    float3 position3D : TEXCOORD2;
-    float3 lightPos : TEXCOORD3;
-    float4 lightViewPosition : TEXCOORD4;
 };
 
 // pixel input type

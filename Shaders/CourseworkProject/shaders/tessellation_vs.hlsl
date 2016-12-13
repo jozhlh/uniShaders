@@ -9,14 +9,6 @@ cbuffer MatrixBuffer : register(b0)
 	matrix projectionMatrix;
 };
 
-cbuffer CameraBuffer : register(b3)
-{
-    float3 lightPosition;
-    float padding;
-	float3 cameraPosition;
-	float padding1;
-}
-
 struct InputType
 {
     float3 position : POSITION;
@@ -28,7 +20,6 @@ struct OutputType
 {
     float3 position : POSITION;
     float4 colour : COLOR;
-	float3 viewDirection : TEXCOORD1;
 };
 
 OutputType main(InputType input)
@@ -37,12 +28,6 @@ OutputType main(InputType input)
 
 	// Calculate the position of the vertex in the world.
 	float3 worldPosition = mul(input.position, (float3x3)worldMatrix);
-
-	// Determine the viewing direction based on the position of the camera and the position of the vertex in the world.
-	output.viewDirection = cameraPosition.xyz - worldPosition.xyz;
-
-	// Normalize the viewing direction vector.
-	output.viewDirection = normalize(output.viewDirection);
 
 	 // Pass the vertex position into the hull shader.
     output.position = input.position;

@@ -25,12 +25,6 @@ struct TessellationWarpType
 	bool targetSin;
 };
 
-struct CameraBufferType
-{
-	XMFLOAT3 cameraPosition;
-	float padding;
-};
-
 struct GeometryBufferType
 {
 	float explode;
@@ -46,7 +40,7 @@ public:
 	~TessellationShader();
 
 	void SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture,
-		TessellationSetupType setup, TessellationWarpType warp, float explode, XMFLOAT3 cam);
+		TessellationSetupType setup, TessellationWarpType warp, float explode);
 	void Render(ID3D11DeviceContext* deviceContext, int vertexCount);
 
 private:
@@ -57,7 +51,6 @@ private:
 	ID3D11Buffer* m_tessellationSetupBuffer;
 	ID3D11Buffer* m_tessellationWarpBuffer;
 	ID3D11Buffer* m_geometryBuffer;
-	ID3D11Buffer* m_cameraBuffer;
 	ID3D11SamplerState* m_sampleState;
 };
 

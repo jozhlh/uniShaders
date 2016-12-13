@@ -126,7 +126,7 @@ void UiManager::ShowUi(bool* p_open)
 			{
 				ImGui::Checkbox("Play Animation", &playAnimation);
 				ImGui::DragFloat("Lerp Between Cos Surface and Sin Surface", &tessellationWarp.lerpAmount, 0.01, 0.0f, 1.0f, "%.06f ns");
-				ImGui::DragFloat("Animation Spees", &animationSpeed, 0.1, 1, 100);
+				ImGui::DragFloat("Animation Speed", &animationSpeed, 0.1, 1, 100);
 
 				ImGui::TreePop();
 			}
