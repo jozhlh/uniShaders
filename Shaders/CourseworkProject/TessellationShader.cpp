@@ -4,7 +4,7 @@
 
 TessellationShader::TessellationShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
-	InitShader(L"shaders/tessellation_vs.hlsl", L"shaders/tessellation_hs.hlsl", L"shaders/tessellation_ds.hlsl", L"shaders/tessellation_ps.hlsl");
+	InitShader(L"shaders/tessellation_vs.hlsl", L"shaders/tessellation_hs.hlsl", L"shaders/triangle_gs.hlsl", L"shaders/tessellation_ds.hlsl", L"shaders/tessellation_ps.hlsl");
 }
 
 
@@ -133,17 +133,19 @@ void TessellationShader::InitShader(WCHAR* vsFilename,  WCHAR* psFilename)
 	m_device->CreateBuffer(&cameraBufferDesc, NULL, &m_cameraBuffer);
 }
 
-void TessellationShader::InitShader(WCHAR* vsFilename, WCHAR* hsFilename, WCHAR* dsFilename, WCHAR* psFilename)
+void TessellationShader::InitShader(WCHAR* vsFilename, WCHAR* hsFilename, WCHAR* gsFilename, WCHAR* dsFilename, WCHAR* psFilename)
 {
 	// InitShader must be overwritten and it will load both vertex and pixel shaders + setup buffers
 	InitShader(vsFilename, psFilename);
 
 	D3D11_BUFFER_DESC tessellationSetupBufferDesc;
 	D3D11_BUFFER_DESC tessellationWarpBufferDesc;
+	D3D11_BUFFER_DESC geometryBufferDesc;
 
 	// Load other required shaders.
 	loadHullShader(hsFilename);
 	loadDomainShader(dsFilename);
+	loadGeometryShader(gsFilename);
 
 	// Setup the description of the dynamic tessellation setup constant buffer that is in the hull shader.
 	tessellationSetupBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -166,12 +168,23 @@ void TessellationShader::InitShader(WCHAR* vsFilename, WCHAR* hsFilename, WCHAR*
 
 	// Create the constant buffer pointer so we can access the domain shader constant buffer from within this class.
 	m_device->CreateBuffer(&tessellationWarpBufferDesc, NULL, &m_tessellationWarpBuffer);
+
+	// Setup the description of the dynamic tessellation warp constant buffer that is in the hull shader.
+	geometryBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	geometryBufferDesc.ByteWidth = sizeof(GeometryBufferType);
+	geometryBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	geometryBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	geometryBufferDesc.MiscFlags = 0;
+	geometryBufferDesc.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the domain shader constant buffer from within this class.
+	m_device->CreateBuffer(&geometryBufferDesc, NULL, &m_geometryBuffer);
 }
 
 
 void TessellationShader::SetShaderParameters(
 	ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture,
-	TessellationSetupType setup, ID3D11ShaderResourceView* depthMap, TessellationWarpType warp, Light* light, XMFLOAT3 cam)
+	TessellationSetupType setup, ID3D11ShaderResourceView* depthMap, TessellationWarpType warp, float explode, Light* light, XMFLOAT3 cam)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -180,6 +193,7 @@ void TessellationShader::SetShaderParameters(
 	TessellationWarpType* tessWarpPtr;
 	LightBufferType* lightPtr;
 	CameraBufferType* cameraPtr;
+	GeometryBufferType* geometryPtr;
 	unsigned int bufferNumber;
 	XMMATRIX tworld, tview, tproj, tLightViewMatrix, tLightProjectionMatrix;
 
@@ -216,6 +230,7 @@ void TessellationShader::SetShaderParameters(
 	// Now set the constant buffer in the vertex shader with the updated values.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 	deviceContext->DSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+	deviceContext->GSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
 	// Set shader texture resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
@@ -301,6 +316,27 @@ void TessellationShader::SetShaderParameters(
 	bufferNumber = 2;
 	// Set the constant buffer in the domain shader
 	deviceContext->DSSetConstantBuffers(bufferNumber, 1, &m_tessellationWarpBuffer);
+
+	///
+	// Set Geometry Buffer
+	///
+
+	// Lock the tessellation setup constant buffer so it can be written to.
+	deviceContext->Map(m_geometryBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+
+	// Get a pointer to the data in the constant buffer
+	geometryPtr = (GeometryBufferType*)mappedResource.pData;
+
+	// Copy tessellation setup data into the buffer
+	geometryPtr->explode = explode;
+	geometryPtr->padding = { 1.0f, 1.0f, 1.0f };
+
+	// Unlock the buffer
+	deviceContext->Unmap(m_geometryBuffer, 0);
+	// Set buffer number (register value)
+	bufferNumber = 1;
+	// Set the constant buffer in the domain shader
+	deviceContext->GSSetConstantBuffers(bufferNumber, 1, &m_geometryBuffer);
 }
 
 void TessellationShader::Render(ID3D11DeviceContext* deviceContext, int indexCount)

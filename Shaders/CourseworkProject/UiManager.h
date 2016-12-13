@@ -35,6 +35,9 @@ public:
 	float animationSpeed;
 	float sphereSize;
 	XMFLOAT3 spherePosition;
+	int blurLoops;
+	XMFLOAT3 blurWeightings;
+	float explode;
 };
 
 #endif

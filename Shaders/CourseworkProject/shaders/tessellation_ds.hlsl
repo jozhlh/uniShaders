@@ -71,7 +71,7 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
 	float vzr = vertexPosition.z * repeats;
 
 
-	// Calculate sin wave surface modifier
+	//// Calculate sin wave surface modifier
 	float sinWarp = 1.0f;
 	float sinvx = sin(vxr);
 	float sinvy = sin(vyr);
@@ -91,19 +91,54 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
 
 	// INCORRECT // normal = -1 / ( s (sin(r x) sin(r y) sin(r z))^p + p r s x cot(r x) (sin(r x) sin(r y) sin(r z))^p + 1)
     
-    // float u = atan(y/x);
-    // float v = acos(z/radius);
-    // float su = sin(u);
-    // float cu = cos(u);
-    // float sv = sin(v);
-    // float cv = cos(v);
+    float radius = length(radialVector);
+    float u = atan(vertexPosition.y / vertexPosition.x);
+    float v = acos(vertexPosition.z / radius);
+    float su = sin(u);
+    float cu = cos(u);
+    float sv = sin(v);
+    float cv = cos(v);
     
     // Parametric equation of the shape
 
     // Intermediates
-    // float c = radius
-    // float a = severity * radius
-    // float b = repeats * radius
+    float c = radius;
+    float a = severity * radius;
+    float b = repeats * radius;
+    float p = powers;
+    float sinX = sin(b*cu*sv);
+    float sinY = sin(b*su*sv);
+    float sinZ = sin(b*cv);
+    float cosX = cos(b*cu*sv);
+    float cosY = cos(b*su*sv);
+    float cosZ = cos(b*cv);
+    float tanX = tan(b * cu * sv);
+    float tanY = tan(b * su * sv);
+    float tanZ = tan(b * cv);
+    float cotX = 1 / tanX;
+    float cotY = 1 / tanY;
+    float cotZ = 1 / tanZ;
+    float sinCalc = sinX*sinY*sinZ;
+    float cosCalc = cosX*cosY*cosZ;
+    float sinPowers = 1.0f;
+    float cosPowers = 1.0f;
+    float sinPowersLess = 1.0f;
+    float cosPowersLess = 1.0f;
+
+     for (int pow = 0; pow < p; pow++)
+    {
+        if (pow != 0)
+        {
+            sinPowersLess *= sinCalc;
+            cosPowersLess *= cosCalc;
+        }
+       sinPowers *= sinCalc;
+       cosPowers *= cosCalc;
+    }
+
+    float dvSinDiffInter = (b*su*cv*sinZ*cosY*sinX - b*sv*cosZ*sinY*sinX + b*cu*cv*sinY*sinZ*cosX);
+
+    
 
     /////////////////////////////////
     //        SIN CONFIG           //
@@ -112,7 +147,7 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
     // Equation of x
     // x = (c * cos(u) * sin(v)) + (a * cos(u) * sin(v))*((sin(b * cos(u) * sin(v)) * sin(b * sin(u) * sin(v)) * sin(b * cos(v)))^p)
     // with intermediates
-    // x = (c*cu*sv) + (a*cu*sv) * (sin(b*cu*sv) * sin(b*su*sv) * sin(b*cv))^p
+    //sinVertexPosition.x = (c * cu * sv) + ((a * cu * sv) * sinPowers);
     
     //d)/(du)(x = c cos(u) sin(v)) = -c sin(u) sin(v)
     //(d)/(du)(x = a cos(u) sin(v) (sin(b cos(u) sin(v)) sin(b sin(u) sin(v)) sin(b cos(v)))^p) = -a sin(v) (sin(b sin(u) sin(v)) sin(b cos(v)) sin(b cos(u) sin(v)))^p (-b p cos^2(u) sin(v) cot(b sin(u) sin(v))+b p sin(u) cos(u) sin(v) cot(b cos(u) sin(v))+sin(u))
@@ -120,7 +155,7 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
         // differentiated with respect to u
         // dx/du = -(c * sin(u) * sin(v)) - (a * sin(v) * (sin(b * sin(u) * sin(v)) * sin(b * cos(v)) * sin(b * cos(u) * sin(v)))^p * (-b * p * cos^2(u) * sin(v) * cot(b * sin(u) * sin(v)) + b * p * sin(u) * cos(u) * sin(v) * cot(b * cos(u) * sin(v))+sin(u)))
         // with intermediates
-        // float dxdu = -(c*su*sv) - a*sv*((sin(b*su*sv)*sin(b*cv)*sin(b*cu*sv))^p)*(-(b*p*cu*cu*sv*cot(b*su*sv)) + (b*p*su*cu*sv*cot(b*cu*sv)) + su)
+        float dxdu = (-1*c*su*sv) - (a*sv*sinPowers*-1*b*p*cu*cu*sv*cotY) + (b*p*su*cu*sv*cotX) + su;
 
     // (d)/(dv)(x = c cos(u) sin(v)) = c cos(u) cos(v)
     // (d)/(dv)(x = a cos(u) sin(v) (sin(b cos(u) sin(v)) sin(b sin(u) sin(v)) sin(b cos(v)))^p) = (0 = a p cos(u) sin(v) (b sin(u) cos(v) sin(b cos(v)) cos(b sin(u) sin(v)) sin(b cos(u) sin(v)) - b sin(v) cos(b cos(v)) sin(b sin(u) sin(v)) sin(b cos(u) sin(v)) + b cos(u) cos(v) sin(b sin(u) sin(v)) sin(b cos(v)) cos(b cos(u) sin(v))) (sin(b sin(u) sin(v)) sin(b cos(v)) sin(b cos(u) sin(v)))^(p - 1) + a cos(u) cos(v) (sin(b sin(u) sin(v)) sin(b cos(v)) sin(b cos(u) sin(v)))^p)
@@ -128,47 +163,49 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
         // differentiated with respect to v
         // dx/dv = (c*cos(u)*cos(v)) + (a p cos(u) sin(v) (b sin(u) cos(v) sin(b cos(v)) cos(b sin(u) sin(v)) sin(b cos(u) sin(v)) - b sin(v) cos(b cos(v)) sin(b sin(u) sin(v)) sin(b cos(u) sin(v)) + b cos(u) cos(v) sin(b sin(u) sin(v)) sin(b cos(v)) cos(b cos(u) sin(v))) (sin(b sin(u) sin(v)) sin(b cos(v)) sin(b cos(u) sin(v)))^(p - 1) + a cos(u) cos(v) (sin(b sin(u) sin(v)) sin(b cos(v)) sin(b cos(u) sin(v)))^p)
 	    // with intermediates
-        // float dx/dv = (c*cu*cv) + (a*p*cu*sv* (b*su*cv* sin(b*cv)*cos(b*su*sv)*sin(b*cu*sv) - b*sv*cos(b*cv)*sin(b*su*sv)*sin(b*cu*sv) + b*cu*cv* sin(b*su*sv) * sin(b*cv) * cos(b*cu*sv)) * (sin(b*su*sv) * sin(b*cv) * sin(b*cu*sv))^(p - 1) + a*cu*cv*(sin(b*su*sv) * sin(b*cv) * sin(b*cu*sv))^p)
+        float dxdv = (c*cu*cv) + ((a*p*cu*sv*dvSinDiffInter*sinPowersLess) + (a*cu*cv*sinPowers));
 
     /////////////////////////////////
     // Equation of y
     // y = (c * sin(u) * sin(v)) + (a * sin(u) * sin(v))*((sin(b * cos(u) * sin(v)) * sin(b * sin(u) * sin(v)) * sin(b * cos(v)))^p)
     // with intermediates
-    // y = (c*su*sv) + (a*su*sv) * (sin(b*cu*sv) * sin(b*su*sv) * sin(b*cv))^p
+   // sinVertexPosition.y = (c * su * sv) + (a * su * sv * sinPowers);
 
     //(d)/(du)(y = c sin(u) sin(v)) = c cos(u) sin(v)
     //(d)/(du)(y = a sin(u) sin(v) (sin(b cos(u) sin(v)) sin(b sin(u) sin(v)) sin(b cos(v)))^p) = a sin(v) (sin(b sin(u) sin(v)) sin(b cos(v)) sin(b cos(u) sin(v)))^p (-b p sin^2(u) sin(v) cot(b cos(u) sin(v)) + b p sin(u) cos(u) sin(v) cot(b sin(u) sin(v)) + cos(u))
 
         // differentiated with respect to u
-        // float dydu = c*cu*sv + (a*sv * (sin(b*su*sv) * sin(b*cv) * sin(b*cu*sv))^p * (-b*p*su*su*sv* cot(b*cu*sv) + b*p*su*cu*sv* cot(b*su*sv) + cu))
+        float dydu = (c*cu*sv) + ((a*sv*sinPowers*-1*b*p*su*su*sv*cotX) + (b*p*su*cu*sv*cotY) + cu);
 
     //(d)/(dv)(y = c sin(u) sin(v)) = c sin(u) cos(v)
     //(d)/(dv)(y = a sin(u) sin(v) (sin(b cos(u) sin(v)) sin(b sin(u) sin(v)) sin(b cos(v)))^p) = (0 = a p sin(u) sin(v) (b sin(u) cos(v) sin(b cos(v)) cos(b sin(u) sin(v)) sin(b cos(u) sin(v)) - b sin(v) cos(b cos(v)) sin(b sin(u) sin(v)) sin(b cos(u) sin(v)) + b cos(u) cos(v) sin(b sin(u) sin(v)) sin(b cos(v)) cos(b cos(u) sin(v))) (sin(b sin(u) sin(v)) sin(b cos(v)) sin(b cos(u) sin(v)))^(p - 1) + a sin(u) cos(v) (sin(b sin(u) sin(v)) sin(b cos(v)) sin(b cos(u) sin(v)))^p)
 
         // differentiated with respect to v
-        // float dydu = c*su*cv + (a*p*su*sv* (b*su*cv* sin(b*cv) * cos(b*su*sv) * sin(b*cu*sv) - b*sv* cos(b*cv) * sin(b*su*sv) * sin(b*cu*sv) + b*cu*cv* sin(b*su*sv) * sin(b*cv) * cos(b*cu*sv)) * (sin(b*su*sv) * sin(b*cv) * sin(b*cu*sv))^(p - 1) + a*su*cv* (sin(b*su*sv) * sin(b*cv) * sin(b*cu*sv))^p))
+        float dydv = (c*su*cv) + (a*p*su*sv*dvSinDiffInter*sinPowersLess) + (a*su*cv*sinPowers);
 
     /////////////////////////////////
     // Equation of z
     // z = (c * cos(v)) + (a * cos(v))*((sin(b * cos(u) * sin(v)) * sin(b * sin(u) * sin(v)) * sin(b * cos(v)))^p)
     // with intermediates
-    // z = (c*cv) + (a*cv) * (sin(b*cu*sv) * sin(b*su*sv) * sin(b*cv))^p
+   // sinVertexPosition.z = (c * cv) + (a * cv) * sinPowers;
 
     //(d)/(du)(z = c cos(v)) = 0
     //(d)/(du)(z = a cos(v) (sin(b cos(u) sin(v)) sin(b sin(u) sin(v)) sin(b cos(v)))^p) = a b p sin(v) cos(v) (sin(b sin(u) sin(v)) sin(b cos(v)) sin(b cos(u) sin(v)))^p (cos(u) cot(b sin(u) sin(v)) - sin(u) cot(b cos(u) sin(v)))
 
         // differentiated with respect to u
-        // float dzdu = a*b*p*sv*cv* (sin(b*su*sv) * sin(b*cv) * sin(b*cu*sv))^p (cu* cot(b*su*sv) - su* cot(b*cu*sv))
+        float dzdu = a*b*p*sv*cv*sinPowers * (cu*cotY - su*cotX);
 
     //(d)/(dv)(z = c cos(v)) = -c sin(v)
     //(d)/(dv)(z = a cos(v) (sin(b cos(u) sin(v)) sin(b sin(u) sin(v)) sin(b cos(v)))^p) = (0 = a p cos(v) (b sin(u) cos(v) sin(b cos(v)) cos(b sin(u) sin(v)) sin(b cos(u) sin(v)) - b sin(v) cos(b cos(v)) sin(b sin(u) sin(v)) sin(b cos(u) sin(v)) + b cos(u) cos(v) sin(b sin(u) sin(v)) sin(b cos(v)) cos(b cos(u) sin(v))) (sin(b sin(u) sin(v)) sin(b cos(v)) sin(b cos(u) sin(v)))^(p - 1) - a sin(v) (sin(b sin(u) sin(v)) sin(b cos(v)) sin(b cos(u) sin(v)))^p)
 
         // differentiated with respect to v
-        // float dzdv = -c*sv + (a*p*cv* (b*su*cv* sin(b*cv) * cos(b*su*sv) * sin(b*cu*sv) - b*sv* cos(b*cv) * sin(b*su*sv) * sin(b*cu*sv) + b*cu*cv* sin(b*su*sv) * sin(b*cv) * cos(b*cu*sv)) * (sin(b*su*sv) * sin(b*cv) * sin(b*cu*sv))^(p - 1) - a*sv* (sin(b*su*sv) * sin(b*cv) * sin(b*cu*sv))^p))
+        float dzdv = (-1*c*sv) + (a*p*cv*dvSinDiffInter*sinPowersLess) - (a*sv*sinPowers);
 
     /////////////////////////////////
     // Cross product of (dxdu, dydu, dzdu) X (dxdv, dydv, dzdv) = normal vector (will need normalizing)
 
+    float3 sinNorms = cross(float3(dxdu, dydu, dzdu), float3(dxdv, dydv, dzdv));
+    sinNorms = normalize(sinNorms);
 
     /////////////////////////////////
     //        COS CONFIG           //
@@ -178,72 +215,75 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
     // Equation of x
     // x = (c * cos(u) * sin(v)) + (a * cos(u) * sin(v))*((cos(b * cos(u) * sin(v)) * cos(b * sin(u) * sin(v)) * cos(b * cos(v)))^p)
     // with intermediates
-    // x = (c*cu*sv) + (a*cu*sv) * (cos(b*cu*sv) * cos(b*su*sv) * cos(b*cv))^p
+   // cosVertexPosition.x = (c * cu * sv) + (a * cu * sv * cosPowers);
     
     // (d)/(du)(x = c cos(u) sin(v)) = -c sin(u) sin(v)
     // (d)/(du)(x = a cos(u) sin(v) (cos(b cos(u) sin(v)) cos(b sin(u) sin(v)) cos(b cos(v)))^p) = (0 = a p cos(u) sin(v) (b sin(u) sin(v) cos(b cos(v)) cos(b sin(u) sin(v)) sin(b cos(u) sin(v)) - b cos(u) sin(v) cos(b cos(v)) sin(b sin(u) sin(v)) cos(b cos(u) sin(v))) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^(p - 1) - a sin(u) sin(v) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^p)
 
         // differentiated with respect to u
-        // float dxdu = -c*su*sv + (a*p*cu*sv* (b*su*sv* cos(b*cv) * cos(b*su*sv) * sin(b*cu*sv) - b*cu*sv* cos(b*cv) * sin(b*su*sv) * cos(b*cu*sv)) * (cos(b*cv) * cos(b*cu*sv) * cos(b*su*sv))^(p - 1) - a*su*sv* (cos(b*cv)* cos(b*cu*sv) * cos(b*su*sv))^p))
+        dxdu = (-1*c*su*sv) + (a*p*cu*sv*cosPowersLess*((b*su*sv*cosZ*cosY*sinX) - (b*cu*sv*cosZ*sinY*cosX))) - (a*su*sv*cosPowers);
 
     // (d)/(dv)(x = c cos(u) sin(v)) = c cos(u) cos(v)
     // (d)/(dv)(x = a cos(u) sin(v) (cos(b cos(u) sin(v)) cos(b sin(u) sin(v)) cos(b cos(v)))^p) = (0 = a p cos(u) sin(v) (b sin(v) sin(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)) - b cos(u) cos(v) cos(b cos(v)) cos(b sin(u) sin(v)) sin(b cos(u) sin(v)) - b sin(u) cos(v) cos(b cos(v)) sin(b sin(u) sin(v)) cos(b cos(u) sin(v))) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^(p - 1) + a cos(u) cos(v) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^p)
     
         // differentiated with respect to v
-        // float dxdv = c*cu*cv + (a*p*cu*sv* (b*sv* sin(b*cv) * cos(b*cu*sv) * cos(b*su*sv) - b*cu*cv* cos(b*cv) * cos(b*su*sv) * sin(b*cu*sv) - b*su*cv* cos(b*cv) * sin(b*su*sv) * cos(b*cu*sv)) * (cos(b*cv) * cos(b*cu*sv) * cos(b*su*sv))^(p - 1) + a*cu*cv* (cos(b*cv) * cos(b*cu*sv) * cos(b*su*sv))^p))
+        dxdv = (c*cu*cv) + (a*p*cu*sv*cosPowersLess*((b*sv*sinZ*cosX*cosY) - (b*cu*cv*cosZ*cosY*sinX) - (b*su*cv*cosZ*sinY*cosX))) + (a*cu*cv*cosPowers);
 
     /////////////////////////////////
     // Equation of y
     // y = (c * sin(u) * sin(v)) + (a * sin(u) * sin(v))*((cos(b * cos(u) * sin(v)) * cos(b * sin(u) * sin(v)) * cos(b * cos(v)))^p)
     // with intermediates
-    // y = (c*su*sv) + (a*su*sv) * (cos(b*cu*sv) * cos(b*su*sv) * cos(b*cv))^p
+  //  cosVertexPosition.y = (c*su*sv) + (a*su*sv * cosPowers);
 
     // (d)/(du)(y = c sin(u) sin(v)) = c cos(u) sin(v)
     // (d)/(du)(y = a sin(u) sin(v) (cos(b cos(u) sin(v)) cos(b sin(u) sin(v)) cos(b cos(v)))^p) = (0 = a p sin(u) sin(v) (b sin(u) sin(v) cos(b cos(v)) cos(b sin(u) sin(v)) sin(b cos(u) sin(v)) - b cos(u) sin(v) cos(b cos(v)) sin(b sin(u) sin(v)) cos(b cos(u) sin(v))) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^(p - 1) + a cos(u) sin(v) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^p)
 
         // differentiate with respect to u
-        // float dydu = c*cu*sv + (a*p*su*sv* (b*su*sv* cos(b*cv) * cos(b*su*sv) * sin(b*cu*sv) - b*cu*sv* cos(b*cv) * sin(b*su*sv) * cos(b*cu*sv)) * (cos(b*cv) * cos(b*cu*sv) * cos(b*su*sv))^(p - 1) + a*cu*sv* (cos(b*cv) * cos(b*cu*sv) * cos(b*su*sv))^p))
+        dydu = (c*su*cv) + (a*p*su*sv*cosPowersLess* ((b*su*sv*cosZ*cosY*sinX) - (b*cu*sv*cosZ*sinY*cosX))) + (a*cu*sv*cosPowers);
 
     // (d)/(dv)(y = c sin(u) sin(v)) = c sin(u) cos(v)
-    // (d)/(du)(y = a sin(u) sin(v) (cos(b cos(u) sin(v)) cos(b sin(u) sin(v)) cos(b cos(v)))^p) = (0 = a p sin(u) sin(v) (b sin(u) sin(v) cos(b cos(v)) cos(b sin(u) sin(v)) sin(b cos(u) sin(v)) - b cos(u) sin(v) cos(b cos(v)) sin(b sin(u) sin(v)) cos(b cos(u) sin(v))) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^(p - 1) + a cos(u) sin(v) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^p)
+    // (d)/(dv)(y = a sin(u) sin(v) (cos(b cos(u) sin(v)) cos(b sin(u) sin(v)) cos(b cos(v)))^p) = (0 = a p sin(u) sin(v) (b sin(v) sin(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)) - b cos(u) cos(v) cos(b cos(v)) cos(b sin(u) sin(v)) sin(b cos(u) sin(v)) - b sin(u) cos(v) cos(b cos(v)) sin(b sin(u) sin(v)) cos(b cos(u) sin(v))) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^(p - 1) + a sin(u) cos(v) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^p)
 
         // differentiate with respect to v
-        // float dydv = c*su*cv + (a*p*su*sv* (b*su*sv* cos(b*cv) * cos(b*su*sv) * sin(b*cu*sv) - b*cu*sv* cos(b*cv) * sin(b*su*sv) * cos(b*cu*sv)) * (cos(b*cv) * cos(b*cu*sv) * cos(b*su*sv))^(p - 1) + a*cu*sv* (cos(b*cv) * cos(b*cu*sv) * cos(b*su*sv))^p))    
+        dydv = (c*su*cv) + (a*p*su*sv*cosPowersLess*(b*sv*sinZ*cosX*cosY - b*cu*cv*cosZ*cosY*sinX - b*su*cv*cosZ*sinY*cosX)) + (a*su*cv*cosPowers);
 
     /////////////////////////////////
     // Equation of z
     // z = (c * cos(v)) + (a * cos(v))*((cos(b * cos(u) * sin(v)) * cos(b * sin(u) * sin(v)) * cos(b * cos(v)))^p)
     // with intermediates
-    // z = (c*cv) + (a*cv) * (cos(b*cu*sv) * cos(b*su*sv) * cos(b*cv))^p
+ //   cosVertexPosition.z = (c*cv) + (a*cv*cosPowers);
 
     // (d)/(du)(z = c cos(v)) = 0
     // (d)/(du)(x = a cos(v) (cos(b cos(u) sin(v)) cos(b sin(u) sin(v)) cos(b cos(v)))^p) = a b p sin(v) cos(v) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^p (sin(u) tan(b cos(u) sin(v)) - cos(u) tan(b sin(u) sin(v)))
 
         // differentiate with respect to u
-        // float dzdu = a*b*p*sv*cv* (cos(b*cv) * cos(b*cu*sv) * cos(b*su*sv))^p * (su* tan(b*cu*sv) - cu*tan(b*su*sv))
+        dzdu = a*b*p*sv*cv*cosPowers * (su*tanX - cu*tanY);
 
     // (d)/(dv)(z = c cos(v)) = -c sin(v)
     // (d)/(dv)(z = a cos(v) (cos(b cos(u) sin(v)) cos(b sin(u) sin(v)) cos(b cos(v)))^p) = (0 = a p cos(v) (b sin(v) sin(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)) - b cos(u) cos(v) cos(b cos(v)) cos(b sin(u) sin(v)) sin(b cos(u) sin(v)) - b sin(u) cos(v) cos(b cos(v)) sin(b sin(u) sin(v)) cos(b cos(u) sin(v))) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^(p - 1) - a sin(v) (cos(b cos(v)) cos(b cos(u) sin(v)) cos(b sin(u) sin(v)))^p)
 
         // differentiate with respect to v
-        // float dzdv = -c*sv + (a*p*cv* (b*sv* sin(b*cv) * cos(b*cu*sv) * cos(b*su*sv) - b*cu*cv* cos(b*cv) cos(b*su*sv) * sin(b*cu*sv) - b*su*cv* cos(b*cv) * sin(b*su*sv) * cos(b*cu*sv)) * (cos(b*cv) * cos(b*cu*sv) * cos(b*su*sv))^(p - 1) - a*sv* (cos(b*cv) * cos(b*cu*sv) * cos(b*su*sv))^p))
+        dzdv = (-1*c*sv) + (a*p*cv*cosPowersLess*(b*sv*sinZ*cosX*cosY - b*cu*cv*cosZ*cosY*sinX - b*su*cv*cosZ*sinY*cosX)) - (a*sv*cosPowers);
 
     /////////////////////////////////
     // Cross product of (dxdu, dydu, dzdu) X (dxdv, dydv, dzdv) = normal vector (will need normalizing)
 
+    float3 cosNorms = cross(float3(dxdu, dydu, dzdu), float3(dxdv, dydv, dzdv));
+    cosNorms = normalize(cosNorms);
+
 	// Calculate normals for sin configuration
-	sinNormal.x = -1 / ((sinSev + 1) + (powers * sinSev * vxr * (1 / tan(vxr))));
-	sinNormal.y = -1 / ((sinSev + 1) + (powers * sinSev * vyr * (1 / tan(vyr))));
-	sinNormal.z = -1 / ((sinSev + 1) + (powers * sinSev * vzr * (1 / tan(vzr))));
+	//sinNormal.x = -1 / ((sinSev + 1) + (powers * sinSev * vxr * (1 / tan(vxr))));
+	//sinNormal.y = -1 / ((sinSev + 1) + (powers * sinSev * vyr * (1 / tan(vyr))));
+	//sinNormal.z = -1 / ((sinSev + 1) + (powers * sinSev * vzr * (1 / tan(vzr))));
 
-	// Get unit normal
-	sinNormal = normalize(sinNormal);
+	//// Get unit normal
+	//sinNormal = normalize(sinNormal);
 
-	sinColourModifier.x *= sinWarp;
-	sinColourModifier.y *= sinWarp;
-	sinColourModifier.z *= sinWarp;
+	//sinColourModifier.x *= sinWarp;
+	//sinColourModifier.y *= sinWarp;
+	//sinColourModifier.z *= sinWarp;
 
-	// Calculate cos wave surface modifier
+	//// Calculate cos wave surface modifier
 	float cosWarp = 1.0f;
 	float cosvx = cos(vxr);
 	float cosvy = cos(vyr);
@@ -263,17 +303,17 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
 	cosVertexPosition.y += radialVector.y * cosSev;
 	cosVertexPosition.z += radialVector.z * cosSev;
 
-	// normal = -1 /( s (cos(r x) cos(r y) cos(r z))^p - p r s x tan(r x) (cos(r x) cos(r y) cos(r z))^p + 1)
+	//// normal = -1 /( s (cos(r x) cos(r y) cos(r z))^p - p r s x tan(r x) (cos(r x) cos(r y) cos(r z))^p + 1)
 
-	cosNormal.x = -1 / ((cosSev + 1) - (powers * cosSev * vxr * (tan(vxr))));
-	cosNormal.y = -1 / ((cosSev + 1) - (powers * cosSev * vyr * (tan(vyr))));
-	cosNormal.z = -1 / ((cosSev + 1) - (powers * cosSev * vzr * (tan(vzr))));
+	//cosNormal.x = -1 / ((cosSev + 1) - (powers * cosSev * vxr * (tan(vxr))));
+	//cosNormal.y = -1 / ((cosSev + 1) - (powers * cosSev * vyr * (tan(vyr))));
+	//cosNormal.z = -1 / ((cosSev + 1) - (powers * cosSev * vzr * (tan(vzr))));
 
-	cosNormal = normalize(cosNormal);
+	//cosNormal = normalize(cosNormal);
 
-	cosColourModifier.x *= cosWarp;
-	cosColourModifier.y *= cosWarp;
-	cosColourModifier.z *= cosWarp;
+	//cosColourModifier.x *= cosWarp;
+	//cosColourModifier.y *= cosWarp;
+	//cosColourModifier.z *= cosWarp;
 	
 	// Lerp between cos function and sin function
 	if (targetSin)
@@ -282,9 +322,9 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
 		vertexPosition.y = lerp(cosVertexPosition.y, sinVertexPosition.y, lerpAmount);
 		vertexPosition.z = lerp(cosVertexPosition.z, sinVertexPosition.z, lerpAmount);
 		 
-		normals.x = lerp(cosNormal.x, sinNormal.x, lerpAmount);
-		normals.y = lerp(cosNormal.y, sinNormal.y, lerpAmount);
-		normals.z = lerp(cosNormal.z, sinNormal.z, lerpAmount);
+		normals.x = lerp(cosNorms.x, sinNorms.x, lerpAmount);
+        normals.y = lerp(cosNorms.y, sinNorms.y, lerpAmount);
+        normals.z = lerp(cosNorms.z, sinNorms.z, lerpAmount);
 
 		colourModifier.x = lerp(cosColourModifier.x, sinColourModifier.x, lerpAmount);
 		colourModifier.y = lerp(cosColourModifier.y, sinColourModifier.y, lerpAmount);
@@ -296,9 +336,9 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
 		vertexPosition.y = lerp(sinVertexPosition.y, cosVertexPosition.y, 1 - lerpAmount);
 		vertexPosition.z = lerp(sinVertexPosition.z, cosVertexPosition.z, 1 - lerpAmount);
 
-		normals.x = lerp(sinNormal.x, cosNormal.x, 1 - lerpAmount);
-		normals.y = lerp(sinNormal.y, cosNormal.y, 1 - lerpAmount);
-		normals.z = lerp(sinNormal.z, cosNormal.z, 1 - lerpAmount);
+        normals.x = lerp(sinNorms.x, cosNorms.x, 1 - lerpAmount);
+        normals.y = lerp(sinNorms.y, cosNorms.y, 1 - lerpAmount);
+        normals.z = lerp(sinNorms.z, cosNorms.z, 1 - lerpAmount);
 
 		colourModifier.x = lerp(sinColourModifier.x, cosColourModifier.x, 1 - lerpAmount);
 		colourModifier.y = lerp(sinColourModifier.y, cosColourModifier.y, 1 - lerpAmount);
@@ -307,6 +347,14 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
 
 	colourModifier *= 2;
 
+    //vertexPosition = cosVertexPosition;
+    //normals = cosNorms;
+
+    //vertexPosition = sinVertexPosition;
+    //normals = sinNorms;
+
+    float tone = radius / (length(vertexPosition) * 2.0f);
+
 	//colourModifier = normalize(colourModifier);
 	colourModifier.x = clamp(colourModifier.x, 0.0f, 1.0f);
 	colourModifier.y = clamp(colourModifier.y, 0.0f, 1.0f);
@@ -314,9 +362,10 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
 	colourModifier.a = 1.0f;
 
     // Calculate the position of the new vertex against the world, view, and projection matrices.
-    output.position = mul(float4(vertexPosition, 1.0f), worldMatrix);
-    output.position = mul(output.position, viewMatrix);
-    output.position = mul(output.position, projectionMatrix);
+    output.position = float4(vertexPosition, 1.0f);
+    //output.position = mul(float4(vertexPosition, 1.0f), worldMatrix);
+    //output.position = mul(output.position, viewMatrix);
+    //output.position = mul(output.position, projectionMatrix);
 
     // Calculate the position of the vertice as viewed by the light source.
     output.lightViewPosition = mul(float4(vertexPosition, 1.0f), worldMatrix);
@@ -329,7 +378,14 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
 	// Making the changes here uses the position in screen space
 
     // Send the input color into the pixel shader.
-    output.colour = float4(baseColour.x, baseColour.y, baseColour.z, 1.0f);
+    colourModifier.x = 1 - (baseColour.x + saturate(tone));
+    colourModifier.y = 1 - (baseColour.y + saturate(tone));
+    colourModifier.z = 1 - (baseColour.z + saturate(tone));
+    colourModifier.w = 1.0f;
+    
+    colourModifier = saturate(colourModifier);
+
+    output.colour = colourModifier;
 
     output.normal = normals;
 

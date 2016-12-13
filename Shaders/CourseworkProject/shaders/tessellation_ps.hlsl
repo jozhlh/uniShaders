@@ -57,81 +57,81 @@ float4 main(InputType input) : SV_TARGET
     projectTexCoord.x = input.lightViewPosition.x / input.lightViewPosition.w / 2.0f + 0.5f;
     projectTexCoord.y = -input.lightViewPosition.y / input.lightViewPosition.w / 2.0f + 0.5f;
     // Determine if the projected coordinates are in the 0 to 1 range.  If so then this pixel is in the view of the light.
-    if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
-    {
-	    // Sample the shadow map depth value from the depth texture using the sampler at the 	projected texture coordinate location.
-        depthValue = depthMapTexture.Sample(SampleTypeClamp, projectTexCoord).r;
+    //if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
+    //{
+	   // // Sample the shadow map depth value from the depth texture using the sampler at the 	projected texture coordinate location.
+    //    depthValue = depthMapTexture.Sample(SampleTypeClamp, projectTexCoord).r;
 
-	    // Calculate the depth of the light.
-        lightDepthValue = input.lightViewPosition.z / input.lightViewPosition.w;
+	   // // Calculate the depth of the light.
+    //    lightDepthValue = input.lightViewPosition.z / input.lightViewPosition.w;
 
-	    // Subtract the bias from the lightDepthValue.
-        lightDepthValue = lightDepthValue - bias;
+	   // // Subtract the bias from the lightDepthValue.
+    //    lightDepthValue = lightDepthValue - bias;
 
-	    // Compare the depth of the shadow map value and the depth of the light to determine 	whether to shadow or to light this pixel.
-	    // If the light is in front of the object then light the pixel, if not then shadow this 	pixel since an object (occluder) is casting a shadow on it.
-        if (lightDepthValue < depthValue)
-        {
+	   // // Compare the depth of the shadow map value and the depth of the light to determine 	whether to shadow or to light this pixel.
+	   // // If the light is in front of the object then light the pixel, if not then shadow this 	pixel since an object (occluder) is casting a shadow on it.
+    //    if (lightDepthValue < depthValue)
+    //    {
 
-            direction = normalize(lightDirection);
-            // Invert the light direction for calculations.
-            lightDir = direction;
+    //        direction = normalize(lightDirection);
+    //        // Invert the light direction for calculations.
+    //        lightDir = direction;
 
-            // Calculate the amount of light on this pixel.
-            lightIntensity = saturate(dot(input.normal, -lightDir));
+    //        // Calculate the amount of light on this pixel.
+    //        lightIntensity = saturate(dot(input.normal, -lightDir));
 
-            if (lightIntensity > 0.0f)
-            {
-		        // Determine the final amount of diffuse color based on the diffuse color combined with the light intensity.
-                color += (diffuseColor * lightIntensity);
-                color = saturate(color);
+    //        if (lightIntensity > 0.0f)
+    //        {
+		  //      // Determine the final amount of diffuse color based on the diffuse color combined with the light intensity.
+    //            color += (diffuseColor * lightIntensity);
+    //            color = saturate(color);
 
-		        // Calculate reflection vector based on the light intensity, normal vector and light direction
-                reflection = reflect(lightDir, input.normal);
+		  //      // Calculate reflection vector based on the light intensity, normal vector and light direction
+    //            reflection = reflect(lightDir, input.normal);
 
-		        // Determine the amount of specular light based on the reflection vector, viewing direction, and specular power.
-                specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
+		  //      // Determine the amount of specular light based on the reflection vector, viewing direction, and specular power.
+    //            specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
 
-		        // Sum up specular light
-                finalSpec = specularColor * specular;
-            }
-        }
-    }
+		  //      // Sum up specular light
+    //            finalSpec = specularColor * specular;
+    //        }
+    //    }
+    //}
 
 
-	//direction = normalize(lightDirection);
-    //Point Light
-    //lightDir = normalize(input.position3D - position);
+	direction = normalize(lightDirection);
+   // Point Light
+   // lightDir = normalize(input.position3D - position);
 
-	//// Invert the light direction for calculations.
- //   lightDir = direction;
+	// Invert the light direction for calculations.
+    lightDir = direction;
 
- //   // Calculate the amount of light on this pixel.
-	//lightIntensity = saturate(dot(input.normal, -lightDir));
+    // Calculate the amount of light on this pixel.
+	lightIntensity = saturate(dot(input.normal, -lightDir));
 
-	//if (lightIntensity > 0.0f)
-	//{
-	//	// Determine the final amount of diffuse color based on the diffuse color combined with the light intensity.
-	//	color += (diffuseColor * lightIntensity);
-	//	color = saturate(color);
+	if (lightIntensity > 0.0f)
+	{
+		// Determine the final amount of diffuse color based on the diffuse color combined with the light intensity.
+		color += (diffuseColor * lightIntensity);
+		color = saturate(color);
 
-	//	// Calculate reflection vector based on the light intensity, normal vector and light direction
- //       reflection = reflect(lightDir, input.normal);
+		// Calculate reflection vector based on the light intensity, normal vector and light direction
+        //reflection = reflect(lightDir, input.normal);
 
-	//	// Determine the amount of specular light based on the reflection vector, viewing direction, and specular power.
-	//	specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
+		// Determine the amount of specular light based on the reflection vector, viewing direction, and specular power.
+		//specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
 
-	//	// Sum up specular light
-	//	finalSpec = specularColor * specular;
-	//}
+		// Sum up specular light
+		//finalSpec = specularColor * specular;
+	}
 
 	// Turn this on to see the texture
 	// Multiply the texture pixel and the final diffuse color to get the final pixel color result.
 	//color = color * textureColor;
 
 	// Add the specular component last to the output colour.
-	color = saturate(color + finalSpec);
+	//color = saturate(color + finalSpec);
 
-   // color = input.colour;
+    color = input.colour;
     return color;
 }

@@ -7,13 +7,17 @@ App1::App1()
 	m_SphereMesh = nullptr;
 	m_PlaneMesh = nullptr;
 	m_LightShader = nullptr;
-	m_Light = nullptr;
+	//m_Light = nullptr;
 
 	m_UiManager = nullptr;
 	m_Timer = nullptr;
 	m_RenderTexture = nullptr;
-	m_DepthTexture = nullptr;
-	m_PrimaryShadowMap = nullptr;
+	//m_DepthTexture = nullptr;
+	//m_PrimaryShadowMap = nullptr;
+	m_downScaledTexture = nullptr;
+	m_horizontalBlurTexture = nullptr;
+	m_verticalBlurTexture = nullptr;
+	m_blurredTexture = nullptr;
 
 	// Shader Controllers
 	m_TessellationShader = nullptr;
@@ -21,23 +25,28 @@ App1::App1()
 	m_TextureShader = nullptr;
 	m_DepthShader = nullptr;
 	m_ShadowShader = nullptr;
+	m_HorizontalBlurShader = nullptr;
+	m_VerticalBlurShader = nullptr;
 
 	// Geometry
-	m_testTesMesh = nullptr;
+	//m_testTesMesh = nullptr;
 	m_SphereMesh = nullptr;
 	m_OrthoMesh = nullptr;
 	m_PlaneMesh = nullptr;
-	m_Spaceship = nullptr;
+	//m_Spaceship = nullptr;
 
 	// Lights
-	m_PrimaryLight = nullptr;
-	m_Light = nullptr;
+	//m_PrimaryLight = nullptr;
+	//m_Light = nullptr;
 }
 
 void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input *in)
 {
 	const int SHADOWMAP_WIDTH = 1024;
 	const int SHADOWMAP_HEIGHT = 1024;
+
+	screenDimensions.x = screenWidth;
+	screenDimensions.y = screenHeight;
 
 	// Call super init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in);
@@ -48,7 +57,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Create Mesh objects with checkerboard texture
 	m_SphereMesh = new TessellationSphere(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png", 20.0f);
 	m_PlaneMesh = new PlaneMesh(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png");
-	m_Spaceship = new Model(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png", L"../res/smallaxe.obj");
+	//m_Spaceship = new Model(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png", L"../res/smallaxe.obj");
 	//m_testTesMesh = new TessellationMesh(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png");
 
 	// Create light shader object
@@ -61,11 +70,15 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	m_ShadowShader = new ShadowShader(m_Direct3D->GetDevice(), hwnd);
 
+	m_VerticalBlurShader = new VerticalBlurShader(m_Direct3D->GetDevice(), hwnd);
+
+	m_HorizontalBlurShader = new HorizontalBlurShader(m_Direct3D->GetDevice(), hwnd);
+
 	// Create Light object
-	m_Light = new Light;
+	//m_Light = new Light;
 
 	// Initialise light properties
-	m_Light->SetAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
+	/*m_Light->SetAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
 	m_Light->SetDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetDirection(0.5f, -0.5f, 0.0f);
 	m_Light->SetPosition(50.0f, 5.0f, 50.0f);
@@ -77,12 +90,19 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	m_PrimaryLight->SetDiffuseColour(1.0f, 1.0f, 0.0f, 1.0f);
 	m_PrimaryLight->SetDirection(0.5f, -0.5f, 0.0f);
 	m_PrimaryLight->SetSpecularPower(25.0f);
-	m_PrimaryLight->SetSpecularColour(1.0f, 0.0f, 0.0f, 1.0f);
+	m_PrimaryLight->SetSpecularColour(1.0f, 0.0f, 0.0f, 1.0f);*/
+
+	float halfWidth = screenWidth * 0.5f;
+	float halfHeight = screenHeight * 0.5f;
 
 	// RenderTexture, OrthoMesh and shader set for different renderTarget
-	m_DepthTexture = new RenderTexture(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_NEAR, SCREEN_DEPTH);
+	//m_DepthTexture = new RenderTexture(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_NEAR, SCREEN_DEPTH);
 	m_RenderTexture = new RenderTexture(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
-	m_PrimaryShadowMap = new RenderTexture(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_NEAR, SCREEN_DEPTH);
+	//m_PrimaryShadowMap = new RenderTexture(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_NEAR, SCREEN_DEPTH);
+	m_downScaledTexture = new RenderTexture(m_Direct3D->GetDevice(), halfWidth, halfHeight, SCREEN_NEAR, SCREEN_DEPTH);
+	m_horizontalBlurTexture = new RenderTexture(m_Direct3D->GetDevice(), halfWidth, halfHeight, SCREEN_NEAR, SCREEN_DEPTH);
+	m_verticalBlurTexture = new RenderTexture(m_Direct3D->GetDevice(), halfWidth, halfHeight, SCREEN_NEAR, SCREEN_DEPTH);
+	m_blurredTexture = new RenderTexture(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);;
 	// ortho size and position set based on window size
 	// 400x400 pixels (standard would be matching window size for fullscreen mesh
 	// Position default at 0x0 centre window, to offset change values (pixel)
@@ -114,11 +134,11 @@ App1::~App1()
 		delete m_SphereMesh;
 		m_SphereMesh = 0;
 	}
-	if (m_testTesMesh)
+	/*if (m_testTesMesh)
 	{
 		delete m_testTesMesh;
 		m_testTesMesh = 0;
-	}
+	}*/
 
 	// Release the Direct3D object.
 	if (m_PlaneMesh)
@@ -127,12 +147,12 @@ App1::~App1()
 		m_PlaneMesh = 0;
 	}
 
-	if (m_Spaceship)
+	/*if (m_Spaceship)
 	{
 		delete m_Spaceship;
 		m_Spaceship = 0;
 	}
-
+*/
 	// Release the shader
 	if (m_LightShader)
 	{
@@ -146,7 +166,7 @@ App1::~App1()
 	}
 
 	// Release the Light object.
-	if (m_Light)
+	/*if (m_Light)
 	{
 		delete m_Light;
 		m_Light = 0;
@@ -156,7 +176,7 @@ App1::~App1()
 	{
 		delete m_PrimaryLight;
 		m_PrimaryLight = 0;
-	}
+	}*/
 
 	if (m_TextureShader)
 	{
@@ -176,11 +196,11 @@ App1::~App1()
 		m_RenderTexture = 0;
 	}
 
-	if (m_DepthTexture)
+	/*if (m_DepthTexture)
 	{
 		delete m_DepthTexture;
 		m_DepthTexture = 0;
-	}
+	}*/
 
 	if (m_DepthShader)
 	{
@@ -194,11 +214,11 @@ App1::~App1()
 		m_ShadowShader = 0;
 	}
 
-	if (m_PrimaryShadowMap)
+	/*if (m_PrimaryShadowMap)
 	{
 		delete m_PrimaryShadowMap;
 		m_PrimaryShadowMap = 0;
-	}
+	}*/
 }
 
 
@@ -215,7 +235,7 @@ bool App1::Frame()
 
 	if (result)
 	{
-		SetLightParameters(m_PrimaryLight, m_UiManager->primaryLight);
+		//SetLightParameters(m_PrimaryLight, m_UiManager->primaryLight);
 		//m_PrimaryLight->SetPosition(-30.0f, 0.0f, 30.0f);
 		//m_PrimaryLight->SetLookAt(1.0f, 0.0f, 0.0f);
 
@@ -260,9 +280,18 @@ bool App1::Frame()
 	}
 
 	// Render the graphics.
-	RenderLightToShadowMap(m_PrimaryLight, m_DepthTexture);
+	//RenderLightToShadowMap(m_PrimaryLight, m_DepthTexture);
 	//RenderDepth();
 	RenderToTexture();
+	
+	for (int i = 0; i < m_UiManager->blurLoops; i++)
+	{
+		DownSample(m_RenderTexture);
+		HorizontalBlur();
+		VerticalBlur();
+		UpSample();;
+	}
+
 	Render();
 	//RenderDepth();
 	/*result = Render();
@@ -275,115 +304,354 @@ bool App1::Frame()
 	return true;
 }
 
-void App1::RenderLightToShadowMap(Light* light, RenderTexture* shadowMap)
+//void App1::RenderLightToShadowMap(Light* light, RenderTexture* shadowMap)
+//{
+//	XMMATRIX worldMatrix, lightViewMatrix, lightProjectionMatrix, orthoMatrix;
+//
+//	// Set the render target to be the render to texture.
+//	shadowMap->SetRenderTarget(m_Direct3D->GetDeviceContext());
+//
+//	// Clear the render to texture. use the RGBA value to set background of texture // BLACK
+//	shadowMap->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+//
+//	//// Generate the view matrix based on the camera's position.
+//	//m_Camera->Update();
+//	//m_Camera->GetViewMatrix(lightViewMatrix);
+//	light->SetLookAt(0, 0, 30);
+//	light->GenerateProjectionMatrix(SCREEN_NEAR, SCREEN_DEPTH);
+//
+//	//// Get the world, view, projection, and ortho matrices from the light's perspective
+//	light->GenerateViewMatrix();
+//	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+//	//light->GenerateProjectionMatrix(SCREEN_NEAR, SCREEN_DEPTH);
+//	//lightViewMatrix = m_Light->GetViewMatrix();
+//	lightProjectionMatrix = light->GetProjectionMatrix();
+//	m_Direct3D->GetWorldMatrix(worldMatrix);
+//
+//
+//	// Translate sphere mesh
+//	worldMatrix = XMMatrixScaling(m_UiManager->sphereSize, m_UiManager->sphereSize, m_UiManager->sphereSize) + XMMatrixTranslation(m_UiManager->spherePosition.x, m_UiManager->spherePosition.y, m_UiManager->spherePosition.z);
+//	//// Send geometry data (from mesh)
+//	m_SphereMesh->SendData(m_Direct3D->GetDeviceContext());
+//	//// Set shader parameters (matrices and texture)
+//	m_TessellationDepthShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, lightViewMatrix, orthoMatrix, m_SphereMesh->GetTexture(),
+//		m_UiManager->tessellationSetup, m_UiManager->tessellationWarp, m_PrimaryLight, m_Camera->GetPosition());
+//	//// Render object (combination of mesh geometry and shader process
+//	m_TessellationDepthShader->Render(m_Direct3D->GetDeviceContext(), m_SphereMesh->GetIndexCount());
+//	// Reset world matrix
+//	float deScale = 1.0f;
+//	if (deScale > 0) deScale = 1.0f / m_UiManager->sphereSize;
+//	worldMatrix = XMMatrixScaling(deScale, deScale, deScale) + XMMatrixTranslation(-m_UiManager->spherePosition.x, -m_UiManager->spherePosition.y, -m_UiManager->spherePosition.z);
+//
+//	//// translate plane mesh
+//	//worldMatrix = XMMatrixTranslation(-30.0, -17.0, -30.0);
+//	////// Send geometry data (from mesh)
+//	//m_PlaneMesh->SendData(m_Direct3D->GetDeviceContext());
+//	////// Set shader parameters (matrices and texture)
+//	//m_DepthShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, lightViewMatrix, lightOrthographicMatrix);
+//	////// Render object (combination of mesh geometry and shader process
+//	//m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_PlaneMesh->GetIndexCount());
+//	//// translate plane mesh
+//	//worldMatrix = XMMatrixTranslation(30.0, 17.0, 30.0);
+//
+//	// Reset the render target back to the original back buffer and not the render to texture anymore.
+//	m_Direct3D->SetBackBufferRenderTarget();
+//	m_Direct3D->ResetViewport();
+//	//// Present the rendered scene to the screen.
+//	//m_Direct3D->EndScene();
+//
+//}
+//
+//void App1::RenderDepth()
+//{
+//	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+//
+//	// Set the render target to be the render to texture.
+//	m_DepthTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+//	//m_DepthTexture
+//
+//	// Clear the render to texture. use the RGBA value to set background of texture // BLACK
+//	m_DepthTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+//
+//	//// Generate the view matrix based on the camera's position.
+//	m_Camera->Update();
+//
+//	//// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+//	m_Direct3D->GetWorldMatrix(worldMatrix);
+//	m_Camera->GetViewMatrix(viewMatrix);
+//	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+//
+//	
+//	// Translate sphere mesh
+//	worldMatrix = XMMatrixScaling(m_UiManager->sphereSize, m_UiManager->sphereSize, m_UiManager->sphereSize) + XMMatrixTranslation(m_UiManager->spherePosition.x, m_UiManager->spherePosition.y, m_UiManager->spherePosition.z);
+//	//// Send geometry data (from mesh)
+//	m_SphereMesh->SendData(m_Direct3D->GetDeviceContext());
+//	//// Set shader parameters (matrices and texture)
+//	m_TessellationDepthShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_SphereMesh->GetTexture(),
+//		m_UiManager->tessellationSetup, m_UiManager->tessellationWarp, m_PrimaryLight, m_Camera->GetPosition());
+//	//// Render object (combination of mesh geometry and shader process
+//	m_TessellationDepthShader->Render(m_Direct3D->GetDeviceContext(), m_SphereMesh->GetIndexCount());
+//	// Reset world matrix
+//	float deScale = 1.0f;
+//	if (deScale > 0) deScale = 1.0f / m_UiManager->sphereSize;
+//	worldMatrix = XMMatrixScaling(deScale, deScale, deScale) + XMMatrixTranslation(-m_UiManager->spherePosition.x, -m_UiManager->spherePosition.y, -m_UiManager->spherePosition.z);
+//	
+//	//// translate plane mesh
+//	//worldMatrix = XMMatrixTranslation(-30.0, -17.0, -30.0);
+//	////// Send geometry data (from mesh)
+//	//m_PlaneMesh->SendData(m_Direct3D->GetDeviceContext());
+//	////// Set shader parameters (matrices and texture)
+//	//m_DepthShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix);
+//	////// Render object (combination of mesh geometry and shader process
+//	//m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_PlaneMesh->GetIndexCount());
+//	//// translate plane mesh
+//	//worldMatrix = XMMatrixTranslation(30.0, 17.0, 30.0);
+//
+//	// Reset the render target back to the original back buffer and not the render to texture anymore.
+//	m_Direct3D->SetBackBufferRenderTarget();
+//
+//	//// Present the rendered scene to the screen.
+//	//m_Direct3D->EndScene();
+//
+//}
+
+void App1::GaussianBlur(RenderTexture* sourceTexture)
 {
-	XMMATRIX worldMatrix, lightViewMatrix, lightProjectionMatrix, orthoMatrix;
+	XMMATRIX worldMatrix, orthoMatrix, baseViewMatrix;
 
 	// Set the render target to be the render to texture.
-	shadowMap->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	m_downScaledTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 
-	// Clear the render to texture. use the RGBA value to set background of texture // BLACK
-	shadowMap->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	// Clear the render to texture. use the RGBA value to set background of texture // WHITE
+	m_downScaledTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
 
-	//// Generate the view matrix based on the camera's position.
-	//m_Camera->Update();
-	//m_Camera->GetViewMatrix(lightViewMatrix);
-	light->SetLookAt(0, 0, 30);
-	light->GenerateProjectionMatrix(SCREEN_NEAR, SCREEN_DEPTH);
-
-	//// Get the world, view, projection, and ortho matrices from the light's perspective
-	light->GenerateViewMatrix();
-	m_Direct3D->GetOrthoMatrix(orthoMatrix);
-	//light->GenerateProjectionMatrix(SCREEN_NEAR, SCREEN_DEPTH);
-	//lightViewMatrix = m_Light->GetViewMatrix();
-	lightProjectionMatrix = light->GetProjectionMatrix();
+	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
+	m_Direct3D->TurnZBufferOff();
 
-	// Translate sphere mesh
-	worldMatrix = XMMatrixScaling(m_UiManager->sphereSize, m_UiManager->sphereSize, m_UiManager->sphereSize) + XMMatrixTranslation(m_UiManager->spherePosition.x, m_UiManager->spherePosition.y, m_UiManager->spherePosition.z);
-	//// Send geometry data (from mesh)
-	m_SphereMesh->SendData(m_Direct3D->GetDeviceContext());
-	//// Set shader parameters (matrices and texture)
-	m_TessellationDepthShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, lightViewMatrix, orthoMatrix, m_SphereMesh->GetTexture(),
-		m_UiManager->tessellationSetup, m_UiManager->tessellationWarp, m_PrimaryLight, m_Camera->GetPosition());
-	//// Render object (combination of mesh geometry and shader process
-	m_TessellationDepthShader->Render(m_Direct3D->GetDeviceContext(), m_SphereMesh->GetIndexCount());
-	// Reset world matrix
-	float deScale = 1.0f;
-	if (deScale > 0) deScale = 1.0f / m_UiManager->sphereSize;
-	worldMatrix = XMMatrixScaling(deScale, deScale, deScale) + XMMatrixTranslation(-m_UiManager->spherePosition.x, -m_UiManager->spherePosition.y, -m_UiManager->spherePosition.z);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);// ortho matrix for 2D rendering
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
 
-	//// translate plane mesh
-	//worldMatrix = XMMatrixTranslation(-30.0, -17.0, -30.0);
-	////// Send geometry data (from mesh)
-	//m_PlaneMesh->SendData(m_Direct3D->GetDeviceContext());
-	////// Set shader parameters (matrices and texture)
-	//m_DepthShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, lightViewMatrix, lightOrthographicMatrix);
-	////// Render object (combination of mesh geometry and shader process
-	//m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_PlaneMesh->GetIndexCount());
-	//// translate plane mesh
-	//worldMatrix = XMMatrixTranslation(30.0, 17.0, 30.0);
+	m_OrthoMesh->SendData(m_Direct3D->GetDeviceContext());
 
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
+	m_TextureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, sourceTexture->GetShaderResourceView()); //m_RenderTexture
+	m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
+
+	//m_Direct3D->TurnZBufferOn();
+
+	//m_Direct3D->SetBackBufferRenderTarget();
+
+	// Set the render target to be the render to texture.
+	m_horizontalBlurTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+
+	// Clear the render to texture. use the RGBA value to set background of texture // WHITE
+	m_horizontalBlurTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
+
+	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);// ortho matrix for 2D rendering
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	m_OrthoMesh->SendData(m_Direct3D->GetDeviceContext());
+
+	m_HorizontalBlurShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_downScaledTexture->GetShaderResourceView(), screenDimensions.x, m_UiManager->blurWeightings); //m_RenderTexture
+	m_HorizontalBlurShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
+
+	//m_Direct3D->TurnZBufferOn();
+
+	//m_Direct3D->SetBackBufferRenderTarget();
+
+	// Set the render target to be the render to texture.
+	m_verticalBlurTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+
+	// Clear the render to texture. use the RGBA value to set background of texture // WHITE
+	m_verticalBlurTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
+
+	// Generate the view matrix based on the camera's position.
+	//m_Camera->Update();
+
+	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	//m_Camera->GetViewMatrix(viewMatrix);
+	//m_Direct3D->GetProjectionMatrix(projectionMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+	//m_Direct3D->TurnZBufferOff();
+
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);// ortho matrix for 2D rendering
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	m_OrthoMesh->SendData(m_Direct3D->GetDeviceContext());
+
+	m_VerticalBlurShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_horizontalBlurTexture->GetShaderResourceView(), screenDimensions.y, m_UiManager->blurWeightings); //m_RenderTexture
+	m_VerticalBlurShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
+
+	// Set the render target to be the render to texture.
+	m_blurredTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+
+	// Clear the render to texture. use the RGBA value to set background of texture // WHITE
+	m_blurredTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
+
+	// Generate the view matrix based on the camera's position.
+	//m_Camera->Update();
+
+	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+	//m_Direct3D->TurnZBufferOff();
+
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);// ortho matrix for 2D rendering
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	m_OrthoMesh->SendData(m_Direct3D->GetDeviceContext());
+
+	m_TextureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_verticalBlurTexture->GetShaderResourceView()); //m_RenderTexture
+	m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
+
+	m_Direct3D->TurnZBufferOn();
+
 	m_Direct3D->SetBackBufferRenderTarget();
-	m_Direct3D->ResetViewport();
-	//// Present the rendered scene to the screen.
-	//m_Direct3D->EndScene();
-
 }
 
-void App1::RenderDepth()
+void App1::DownSample(RenderTexture* sourceTexture)
 {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix, baseViewMatrix;
+	
 	// Set the render target to be the render to texture.
-	m_DepthTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-	//m_DepthTexture
+	m_downScaledTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 
-	// Clear the render to texture. use the RGBA value to set background of texture // BLACK
-	m_DepthTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	// Clear the render to texture. use the RGBA value to set background of texture // WHITE
+	m_downScaledTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
 
-	//// Generate the view matrix based on the camera's position.
+	// Generate the view matrix based on the camera's position.
 	m_Camera->Update();
 
-	//// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-	
-	// Translate sphere mesh
-	worldMatrix = XMMatrixScaling(m_UiManager->sphereSize, m_UiManager->sphereSize, m_UiManager->sphereSize) + XMMatrixTranslation(m_UiManager->spherePosition.x, m_UiManager->spherePosition.y, m_UiManager->spherePosition.z);
-	//// Send geometry data (from mesh)
-	m_SphereMesh->SendData(m_Direct3D->GetDeviceContext());
-	//// Set shader parameters (matrices and texture)
-	m_TessellationDepthShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_SphereMesh->GetTexture(),
-		m_UiManager->tessellationSetup, m_UiManager->tessellationWarp, m_PrimaryLight, m_Camera->GetPosition());
-	//// Render object (combination of mesh geometry and shader process
-	m_TessellationDepthShader->Render(m_Direct3D->GetDeviceContext(), m_SphereMesh->GetIndexCount());
-	// Reset world matrix
-	float deScale = 1.0f;
-	if (deScale > 0) deScale = 1.0f / m_UiManager->sphereSize;
-	worldMatrix = XMMatrixScaling(deScale, deScale, deScale) + XMMatrixTranslation(-m_UiManager->spherePosition.x, -m_UiManager->spherePosition.y, -m_UiManager->spherePosition.z);
-	
-	//// translate plane mesh
-	//worldMatrix = XMMatrixTranslation(-30.0, -17.0, -30.0);
-	////// Send geometry data (from mesh)
-	//m_PlaneMesh->SendData(m_Direct3D->GetDeviceContext());
-	////// Set shader parameters (matrices and texture)
-	//m_DepthShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix);
-	////// Render object (combination of mesh geometry and shader process
-	//m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_PlaneMesh->GetIndexCount());
-	//// translate plane mesh
-	//worldMatrix = XMMatrixTranslation(30.0, 17.0, 30.0);
+	m_Direct3D->TurnZBufferOff();
 
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);// ortho matrix for 2D rendering
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	m_OrthoMesh->SendData(m_Direct3D->GetDeviceContext());
+
+	m_TextureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, sourceTexture->GetShaderResourceView()); //m_RenderTexture
+	m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
+
+	m_Direct3D->TurnZBufferOn();
+
 	m_Direct3D->SetBackBufferRenderTarget();
 
-	//// Present the rendered scene to the screen.
-	//m_Direct3D->EndScene();
+}
+void App1::HorizontalBlur()
+{
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix, baseViewMatrix;
 
+	// Set the render target to be the render to texture.
+	m_horizontalBlurTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+
+	// Clear the render to texture. use the RGBA value to set background of texture // WHITE
+	m_horizontalBlurTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
+
+	// Generate the view matrix based on the camera's position.
+	m_Camera->Update();
+
+	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+	m_Direct3D->TurnZBufferOff();
+
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);// ortho matrix for 2D rendering
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	m_OrthoMesh->SendData(m_Direct3D->GetDeviceContext());
+
+	m_HorizontalBlurShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_downScaledTexture->GetShaderResourceView(), screenDimensions.x, m_UiManager->blurWeightings); //m_RenderTexture
+	m_HorizontalBlurShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
+
+	m_Direct3D->TurnZBufferOn();
+
+	m_Direct3D->SetBackBufferRenderTarget();
+}
+
+void App1::VerticalBlur()
+{
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix, baseViewMatrix;
+
+	// Set the render target to be the render to texture.
+	m_verticalBlurTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+
+	// Clear the render to texture. use the RGBA value to set background of texture // WHITE
+	m_verticalBlurTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
+
+	// Generate the view matrix based on the camera's position.
+	m_Camera->Update();
+
+	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+	m_Direct3D->TurnZBufferOff();
+
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);// ortho matrix for 2D rendering
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	m_OrthoMesh->SendData(m_Direct3D->GetDeviceContext());
+
+	m_VerticalBlurShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_horizontalBlurTexture->GetShaderResourceView(), screenDimensions.y, m_UiManager->blurWeightings); //m_RenderTexture
+	m_VerticalBlurShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
+
+	m_Direct3D->TurnZBufferOn();
+
+	m_Direct3D->SetBackBufferRenderTarget();
+}
+
+void App1::UpSample()
+{
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix, baseViewMatrix;
+
+	// Set the render target to be the render to texture.
+	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+
+	// Clear the render to texture. use the RGBA value to set background of texture // WHITE
+	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
+
+	// Generate the view matrix based on the camera's position.
+	m_Camera->Update();
+
+	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+	m_Direct3D->TurnZBufferOff();
+
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);// ortho matrix for 2D rendering
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	m_OrthoMesh->SendData(m_Direct3D->GetDeviceContext());
+
+	m_TextureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_verticalBlurTexture->GetShaderResourceView()); //m_RenderTexture
+	m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
+
+	m_Direct3D->TurnZBufferOn();
+
+	m_Direct3D->SetBackBufferRenderTarget();
 }
 
 bool App1::RenderToTexture()
@@ -418,7 +686,7 @@ bool App1::RenderToTexture()
 	m_SphereMesh->SendData(m_Direct3D->GetDeviceContext());
 	//// Set shader parameters (matrices and texture)
 	m_TessellationShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_SphereMesh->GetTexture(),
-		m_UiManager->tessellationSetup, m_DepthTexture->GetShaderResourceView(), m_UiManager->tessellationWarp, m_PrimaryLight, m_Camera->GetPosition());
+		m_UiManager->tessellationSetup, m_DepthTexture->GetShaderResourceView(), m_UiManager->tessellationWarp, m_UiManager->explode, m_PrimaryLight, m_Camera->GetPosition());
 	//// Render object (combination of mesh geometry and shader process
 	m_TessellationShader->Render(m_Direct3D->GetDeviceContext(), m_SphereMesh->GetIndexCount());
 	// Reset world matrix
