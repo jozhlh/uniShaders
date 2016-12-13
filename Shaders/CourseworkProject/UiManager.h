@@ -6,6 +6,17 @@
 
 #include "TessellationShader.h"
 
+struct LightParameterType
+{
+	XMFLOAT4 ambientColour;
+	XMFLOAT4 diffuseColour;
+	XMFLOAT4 specularColour;
+	XMFLOAT3 direction;
+	XMFLOAT3 position;
+	float specularPower;
+
+};
+
 class UiManager
 {
 public:
@@ -15,13 +26,15 @@ public:
 	void ShowUi(bool* p_open);
 	void ShowHelpMarker(const char* desc);
 
+	float frameRate;
+
 	TessellationSetupType tessellationSetup;
 	TessellationWarpType tessellationWarp;
+	LightParameterType primaryLight;
 	bool playAnimation;
 	float animationSpeed;
 	float sphereSize;
 	XMFLOAT3 spherePosition;
-
 };
 
 #endif

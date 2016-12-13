@@ -140,7 +140,7 @@ void ShadowShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	tview = XMMatrixTranspose(viewMatrix);
 	tproj = XMMatrixTranspose(projectionMatrix);
 	tLightViewMatrix = XMMatrixTranspose(light->GetViewMatrix());
-	tLightProjectionMatrix = XMMatrixTranspose(light->GetProjectionMatrix());
+	tLightProjectionMatrix = XMMatrixTranspose(light->GetOrthographicMatrix());
 
 	// Lock the constant buffer so it can be written to.
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

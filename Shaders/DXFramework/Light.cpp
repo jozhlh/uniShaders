@@ -27,6 +27,12 @@ void Light::GenerateProjectionMatrix(float screenNear, float screenFar)
 	m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenFar);
 }
 
+void Light::GenerateOrthographicMatrix(float screenNear, float screenDepth, float screenWidth, float screenHeight)
+{
+	// Create an orthographic projection matrix for 2D rendering.
+	m_orthographicMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+}
+
 void Light::SetAmbientColour(float red, float green, float blue, float alpha)
 {
 	m_ambientColour = XMFLOAT4(red, green, blue, alpha);
@@ -105,4 +111,9 @@ XMMATRIX Light::GetViewMatrix()
 XMMATRIX Light::GetProjectionMatrix()
 {
 	return m_projectionMatrix;
+}
+
+XMMATRIX Light::GetOrthographicMatrix()
+{
+	return m_orthographicMatrix;
 }

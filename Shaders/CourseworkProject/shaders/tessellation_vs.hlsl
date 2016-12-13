@@ -7,12 +7,16 @@ cbuffer MatrixBuffer : register(b0)
 	matrix worldMatrix;
 	matrix viewMatrix;
 	matrix projectionMatrix;
+    matrix lightViewMatrix;
+    matrix lightProjectionMatrix;
 };
 
 cbuffer CameraBuffer : register(b3)
 {
+    float3 lightPosition;
+    float padding;
 	float3 cameraPosition;
-	float padding;
+	float padding1;
 }
 
 struct InputType

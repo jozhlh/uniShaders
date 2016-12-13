@@ -179,9 +179,9 @@ bool App1::Render()
 {
 	iterator += 0.2f;
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	//m_Timer->Frame();
-	//deltaTime += m_Timer->GetTime();
-	deltaTime += 0.01f;
+	m_Timer->Frame();
+	deltaTime = m_Timer->GetTime();
+	//deltaTime += 0.01f;
 
 	//// Clear the scene. (default blue colour)
 	m_Direct3D->BeginScene(0.39f, 0.58f, 0.92f, 1.0f);
@@ -228,7 +228,8 @@ void App1::RenderToTexture()
 	XMFLOAT3 targetPosition = XMFLOAT3(0.0f, -5.0f, 10.0f);
 	XMFLOAT3 targetRotation = XMFLOAT3(0.0f, 90.0f, 0.0f);
 
-	deltaTime += 0.01f;
+	m_Timer->Frame();
+	deltaTime = m_Timer->GetTime();
 
 	// Set the render target to be the render to texture.
 	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
@@ -252,7 +253,7 @@ void App1::RenderToTexture()
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Mesh->SendData(m_Direct3D->GetDeviceContext());
-
+	// Set shader parameters
 	m_LightShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_Mesh->GetTexture(), m_Light, deltaTime, 1);
 	// Render object (combination of mesh geometry and shader process
 	m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Mesh->GetIndexCount());
@@ -312,7 +313,6 @@ void App1::RenderScene()
 	m_Camera->GetBaseViewMatrix(baseViewMatrix);
 
 	m_OrthoMesh->SendData(m_Direct3D->GetDeviceContext());
-	
 	m_TextureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView());
 	m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
 

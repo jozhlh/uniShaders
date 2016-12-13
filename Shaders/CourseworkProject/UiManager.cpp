@@ -2,8 +2,8 @@
 
 UiManager::UiManager()
 {
-	tessellationSetup.edgeSplitting = XMINT3(1, 1, 1);
-	tessellationSetup.innerSplitting = 1;
+	tessellationSetup.edgeSplitting = XMINT3(3, 3, 3);
+	tessellationSetup.innerSplitting = 15;
 
 	tessellationWarp.baseColour = XMFLOAT3(0.4f, 1.0f, 0.3f);
 	tessellationWarp.powers = 4;
@@ -12,8 +12,16 @@ UiManager::UiManager()
 	tessellationWarp.lerpAmount = 1.0f;
 	tessellationWarp.targetSin = true;
 
+	primaryLight.ambientColour = XMFLOAT4(0.1f, 0.0f, 0.0f, 1.0f);
+	primaryLight.diffuseColour = XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f);
+	primaryLight.specularColour = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	primaryLight.direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	primaryLight.position = XMFLOAT3(-30.0f, 0.0f, 30.0f);
+	primaryLight.specularPower = 25.0f;
+
 	playAnimation = true;
 	animationSpeed = 10.0f;
+	frameRate = 0.0f;
 	sphereSize = 5.0f;
 	spherePosition = XMFLOAT3(0.0f, 0.0f, 30.0f);
 }
@@ -51,8 +59,51 @@ void UiManager::ShowUi(bool* p_open)
 	ImGui::Spacing();
 
 	///
+	// fps
+	///
+
+	ImGui::Text("Framerate: %.1f fps", frameRate);
+	
+	ImGui::Spacing();
+
+	///
 	// Tessellation Controls
 	///
+
+	if (ImGui::CollapsingHeader("Lighting"))
+	{
+		if (ImGui::TreeNode("Primary Light"))
+		{
+			float pos[3] = { primaryLight.position.x, primaryLight.position.y, primaryLight.position.z };
+			ImGui::DragFloat3("Position", pos, 1.0f, -200.f, 200.f);
+			primaryLight.position = XMFLOAT3(pos[0], pos[1], pos[2]);
+
+			float dir[3] = { primaryLight.direction.x, primaryLight.direction.y, primaryLight.direction.z };
+			ImGui::DragFloat3("Direction", dir, 0.01f, -1.f, 1.f);
+			primaryLight.direction = XMFLOAT3(dir[0], dir[1], dir[2]);
+			XMVECTOR normDir = XMVector3Normalize(XMVECTOR{ dir[0], dir[1], dir[2] });
+			XMStoreFloat3(&primaryLight.direction, normDir);
+
+			float ambCol[4] = { primaryLight.ambientColour.x, primaryLight.ambientColour.y, primaryLight.ambientColour.z, primaryLight.ambientColour.w };
+			ImGui::ColorEdit4("Ambient Colour", ambCol);
+			ImGui::SameLine(); ShowHelpMarker("Click on the colored square to change edit mode.\nCTRL+click on individual component to input value.\n");
+			primaryLight.ambientColour = XMFLOAT4(ambCol[0], ambCol[1], ambCol[2], ambCol[3]);
+
+			float difCol[4] = { primaryLight.diffuseColour.x, primaryLight.diffuseColour.y, primaryLight.diffuseColour.z, primaryLight.ambientColour.w };
+			ImGui::ColorEdit4("Diffuse Colour", difCol);
+			ImGui::SameLine(); ShowHelpMarker("Click on the colored square to change edit mode.\nCTRL+click on individual component to input value.\n");
+			primaryLight.diffuseColour = XMFLOAT4(difCol[0], difCol[1], difCol[2], difCol[3]);
+
+			float specCol[4] = { primaryLight.specularColour.x, primaryLight.specularColour.y, primaryLight.specularColour.z, primaryLight.specularColour.w };
+			ImGui::ColorEdit4("Specular Colour", specCol);
+			ImGui::SameLine(); ShowHelpMarker("Click on the colored square to change edit mode.\nCTRL+click on individual component to input value.\n");
+			primaryLight.specularColour = XMFLOAT4(specCol[0], specCol[1], specCol[2], specCol[3]);
+
+			ImGui::DragFloat("Specular Power", &primaryLight.specularPower, 0.1f, 0.5f, 200.f, "%.05f ns");
+
+			ImGui::TreePop();
+		}
+	}
 
 	if (ImGui::CollapsingHeader("Tessellation"))
 	{

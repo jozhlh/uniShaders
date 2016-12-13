@@ -32,19 +32,44 @@ public:
 	bool Frame();
 
 protected:
+	void RenderLightToShadowMap(Light* light, RenderTexture* shadowMap);
+	void RenderDepth();
+	bool RenderToTexture();
 	bool Render();
 
 private:
+	void SetLightParameters(Light* light, LightParameterType params);
+
+	// System Objects
 	UiManager* m_UiManager;
+	Timer* m_Timer;
+	RenderTexture* m_RenderTexture;
+	RenderTexture* m_DepthTexture;
+	RenderTexture* m_PrimaryShadowMap;
+
+	// Shader Controllers
 	SpecularLightShader* m_LightShader;
 	TessellationShader* m_TessellationShader;
+	DepthShader* m_TessellationDepthShader;
+	TextureShader* m_TextureShader;
+	DepthShader* m_DepthShader;
+	ShadowShader* m_ShadowShader;
+
+	// Geometry
 	TessellationMesh* m_testTesMesh;
 	TessellationSphere* m_SphereMesh;
+	OrthoMesh* m_OrthoMesh;
 	PlaneMesh* m_PlaneMesh;
 	Model* m_Spaceship;
+
+	// Lights
 	Light* m_PrimaryLight;
 	Light* m_Light;
-	Timer* m_Timer;
+
+
+
+
+	// Other variables
 	float iterator = 0;
 	float sphereLerp;
 

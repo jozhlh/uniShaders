@@ -21,6 +21,7 @@ public:
 
 	void GenerateViewMatrix();
 	void GenerateProjectionMatrix(float, float);
+	void GenerateOrthographicMatrix(float screenNear, float screenDepth, float screenWidth, float screenHeight);
 
 	// Setters
 	void SetAmbientColour(float, float, float, float);
@@ -40,6 +41,7 @@ public:
 	XMFLOAT3 GetPosition();
 	XMMATRIX GetViewMatrix();
 	XMMATRIX GetProjectionMatrix();
+	XMMATRIX GetOrthographicMatrix();
 
 
 protected:
@@ -51,6 +53,7 @@ protected:
 	XMVECTOR m_position;
 	XMMATRIX m_viewMatrix;
 	XMMATRIX m_projectionMatrix;
+	XMMATRIX m_orthographicMatrix;
 	XMVECTOR m_lookAt; 
 };
 
