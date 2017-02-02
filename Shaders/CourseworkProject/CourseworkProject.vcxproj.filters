@@ -94,5 +94,8 @@
     <FxCompile Include="shaders\triangle_gs.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\tessellation_noise_ds.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
