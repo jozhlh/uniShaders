@@ -3,13 +3,13 @@
 UiManager::UiManager()
 {
 	// Initialise all UI variables
-	tessellationSetup.edgeSplitting = XMINT3(3, 3, 3);
-	tessellationSetup.innerSplitting = 15;
+	tessellationSetup.edgeSplitting = XMINT3(2, 2, 2);
+	tessellationSetup.innerSplitting = 2;
 
 	tessellationWarp.baseColour = XMFLOAT3(0.4f, 1.0f, 0.3f);
 	tessellationWarp.powers = 4;
-	tessellationWarp.repeats = 10.0f;
-	tessellationWarp.severity = 5.0f;
+	tessellationWarp.repeats = 1.0f;
+	tessellationWarp.severity = 1.0f;
 	tessellationWarp.lerpAmount = 1.0f;
 	tessellationWarp.targetSin = true;
 
@@ -19,7 +19,7 @@ UiManager::UiManager()
 	sphereSize = 5.0f;
 	spherePosition = XMFLOAT3(0.0f, 0.0f, 30.0f);
 
-	blurLoops = 1;
+	blurLoops = 0;
 	blurWeightings.x = 0.4062f;
 	blurWeightings.y = 0.2442f;
 	blurWeightings.z = 0.0545f;
@@ -105,7 +105,7 @@ void UiManager::ShowUi(bool* p_open)
 			{
 				ImGui::DragInt("To What Order is The Algorithm", &tessellationWarp.powers, 0.5, 1, 50);
 				ImGui::DragFloat("Frequency", &tessellationWarp.repeats, 0.1, 1, 100);
-				ImGui::DragFloat("Intensity", &tessellationWarp.severity, 0.1, 1, 100);
+				ImGui::DragFloat("Intensity", &tessellationWarp.severity, 0.1, 0, 100);
 
 				ImGui::TreePop();
 			}
