@@ -33,6 +33,7 @@ protected:
 	void VerticalBlur();
 	void UpSample();
 	bool Render();
+	float SmootherStep(float edge0, float edge1, float x);
 
 private:
 	// System Objects

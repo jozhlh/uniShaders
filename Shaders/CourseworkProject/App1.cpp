@@ -191,6 +191,7 @@ bool App1::Frame()
 			}
 		}
 	}
+
 	// Lerp between surface modifiers
 	m_UiManager->tessellationWarp.lerpAmount = sphereLerp / ANIM_CAP;
 
@@ -385,4 +386,21 @@ bool App1::Render()
 	m_Direct3D->EndScene();
 
 	return true;
+}
+
+float App1::SmootherStep(float edge0, float edge1, float x)
+{
+	// Scale, and clamp x to 0..1 range
+	x = (x - edge0) / (edge1 - edge0);
+	if (x < 0)
+	{
+		x = 0;
+	}
+	if (x > 1)
+	{
+		x = 1;
+	}
+
+	// Evaluate polynomial
+	return x*x*x*(x*(x * 6 - 15) + 10);
 }

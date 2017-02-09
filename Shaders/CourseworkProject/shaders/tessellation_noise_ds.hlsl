@@ -114,6 +114,7 @@ int q[512]
 }
 
 
+
 [domain("tri")]
 OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, const OutputPatch<InputType, 4> patch)
 {
@@ -197,19 +198,42 @@ OutputType main(ConstantOutputType input, float3 uvwCoord : SV_DomainLocation, c
 
 	float3 resolutionVector;
 
-	//// Lerp between cos function and sin function
-    if (targetSin)
-    {
-		resolutionVector.x = lerp(cosVertexPosition.x, sinVertexPosition.x, lerpAmount);
-		resolutionVector.y = lerp(cosVertexPosition.y, sinVertexPosition.y, lerpAmount);
-		resolutionVector.z = lerp(cosVertexPosition.z, sinVertexPosition.z, lerpAmount);
-    }
-    else
-    {
-		resolutionVector.x = lerp(sinVertexPosition.x, cosVertexPosition.x, 1 - lerpAmount);
-		resolutionVector.y = lerp(sinVertexPosition.y, cosVertexPosition.y, 1 - lerpAmount);
-		resolutionVector.z = lerp(sinVertexPosition.z, cosVertexPosition.z, 1 - lerpAmount);
+	bool smoothing = false;
+	if (smoothing)
+	{
+		//// Lerp between cos function and sin function
+		if (targetSin)
+		{
+			resolutionVector.x = smoothstep(cosVertexPosition.x, sinVertexPosition.x, lerpAmount);
+			resolutionVector.y = smoothstep(cosVertexPosition.y, sinVertexPosition.y, lerpAmount);
+			resolutionVector.z = smoothstep(cosVertexPosition.z, sinVertexPosition.z, lerpAmount);
+		}
+		else
+		{
+			resolutionVector.x = smoothstep(sinVertexPosition.x, cosVertexPosition.x, 1 - lerpAmount);
+			resolutionVector.y = smoothstep(sinVertexPosition.y, cosVertexPosition.y, 1 - lerpAmount);
+			resolutionVector.z = smoothstep(sinVertexPosition.z, cosVertexPosition.z, 1 - lerpAmount);
+		}
 	}
+	else
+	{
+		float lerpVal = lerpAmount;
+		
+		//// Lerp between cos function and sin function
+		if (targetSin)
+		{
+			resolutionVector.x = lerp(cosVertexPosition.x, sinVertexPosition.x, lerpVal);
+			resolutionVector.y = lerp(cosVertexPosition.y, sinVertexPosition.y, lerpVal);
+			resolutionVector.z = lerp(cosVertexPosition.z, sinVertexPosition.z, lerpVal);
+		}
+		else
+		{
+			resolutionVector.x = lerp(sinVertexPosition.x, cosVertexPosition.x, 1 - lerpVal);
+			resolutionVector.y = lerp(sinVertexPosition.y, cosVertexPosition.y, 1 - lerpVal);
+			resolutionVector.z = lerp(sinVertexPosition.z, cosVertexPosition.z, 1 - lerpVal);
+		}
+	}
+	
 
 	resolutionVector = repeats * resolutionVector;
 
