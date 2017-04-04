@@ -1,5 +1,4 @@
-// Lab1.cpp
-// Lab 1 example, simple textured quad
+// Specular Shader - App1.cpp
 #include "App1.h"
 
 App1::App1()
@@ -17,6 +16,9 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Create Mesh object
 	m_Mesh = new SphereMesh(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/checkerboard.png");
 
+	m_testMesh = new Model(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/testObject0.png", L"../res/testObject0.obj");
+	
+
 	m_LightShader = new SpecularLightShader(m_Direct3D->GetDevice(), hwnd);
 
 	// Create Light object
@@ -24,7 +26,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 
 	// Initialise light properties
-	m_Light->SetAmbientColour(0.1f, 0.0f, 0.0f, 1.0f);
+	m_Light->SetAmbientColour(0.5f, 0.5f, 0.5f, 1.0f);
 
 	m_Light->SetDiffuseColour(0.0f, 0.5f, 0.0f, 1.0f);
 
@@ -47,6 +49,11 @@ App1::~App1()
 	{
 		delete m_Mesh;
 		m_Mesh = 0;
+	}
+	if (m_testMesh)
+	{
+		delete m_testMesh;
+		m_testMesh = 0;
 	}
 
 	// Release the shader
@@ -102,11 +109,18 @@ bool App1::Render()
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
 	//// Send geometry data (from mesh)
-	m_Mesh->SendData(m_Direct3D->GetDeviceContext());
+	//m_Mesh->SendData(m_Direct3D->GetDeviceContext());
+	////// Set shader parameters (matrices and texture)
+	//m_LightShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_Mesh->GetTexture(), m_Light, m_Camera->GetPosition());
+	////// Render object (combination of mesh geometry and shader process
+	//m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Mesh->GetIndexCount());
+
+	//// Send geometry data (from mesh)
+	m_testMesh->SendData(m_Direct3D->GetDeviceContext());
 	//// Set shader parameters (matrices and texture)
-	m_LightShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_Mesh->GetTexture(), m_Light, m_Camera->GetPosition());
+	m_LightShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_testMesh->GetTexture(), m_Light, m_Camera->GetPosition());
 	//// Render object (combination of mesh geometry and shader process
-	m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Mesh->GetIndexCount());
+	m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_testMesh->GetIndexCount());
 
 
 	//worldMatrix = XMMatrixTranslation(2.0, 0.0, 0.0);

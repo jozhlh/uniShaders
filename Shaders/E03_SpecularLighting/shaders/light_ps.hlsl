@@ -65,7 +65,7 @@ float4 main(InputType input) : SV_TARGET
 
 	// Turn this on to see the texture
 	// Multiply the texture pixel and the final diffuse color to get the final pixel color result.
-	// color = color * textureColor;
+	color = color * textureColor;
 
 	// Add the specular component last to the output colour.
 	color = saturate(color + finalSpec);

@@ -43,6 +43,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CourseworkProject", "Course
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ExerciseProjects", "ExerciseProjects", "{636081A4-64A5-4153-89D3-6200932F3FF5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VoronoiBoomtown", "VoronoiBoomtown\VoronoiBoomtown.vcxproj", "{4985A5E6-17FE-468D-B04E-429F09A6D254}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -177,6 +179,16 @@ Global
 		{A000D5C7-AE89-4DBD-B617-9A5399A340CA}.Release|Win32.Build.0 = Release|Win32
 		{A000D5C7-AE89-4DBD-B617-9A5399A340CA}.Release|x64.ActiveCfg = Release|x64
 		{A000D5C7-AE89-4DBD-B617-9A5399A340CA}.Release|x64.Build.0 = Release|x64
+		{4985A5E6-17FE-468D-B04E-429F09A6D254}.Debug|ARM.ActiveCfg = Debug|Win32
+		{4985A5E6-17FE-468D-B04E-429F09A6D254}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4985A5E6-17FE-468D-B04E-429F09A6D254}.Debug|Win32.Build.0 = Debug|Win32
+		{4985A5E6-17FE-468D-B04E-429F09A6D254}.Debug|x64.ActiveCfg = Debug|x64
+		{4985A5E6-17FE-468D-B04E-429F09A6D254}.Debug|x64.Build.0 = Debug|x64
+		{4985A5E6-17FE-468D-B04E-429F09A6D254}.Release|ARM.ActiveCfg = Release|Win32
+		{4985A5E6-17FE-468D-B04E-429F09A6D254}.Release|Win32.ActiveCfg = Release|Win32
+		{4985A5E6-17FE-468D-B04E-429F09A6D254}.Release|Win32.Build.0 = Release|Win32
+		{4985A5E6-17FE-468D-B04E-429F09A6D254}.Release|x64.ActiveCfg = Release|x64
+		{4985A5E6-17FE-468D-B04E-429F09A6D254}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

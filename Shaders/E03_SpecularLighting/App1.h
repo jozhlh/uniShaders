@@ -1,4 +1,4 @@
-// Application.h
+// Specular Shader - Application.h
 #ifndef _APP1_H
 #define _APP1_H
 
@@ -6,6 +6,7 @@
 #include "../DXFramework/baseapplication.h"
 #include "D3D.h"
 #include "../DXFramework/spheremesh.h"
+#include "../DXFramework/Model.h"
 #include "SpecularLightShader.h"
 
 class App1 : public BaseApplication
@@ -24,6 +25,7 @@ protected:
 private:
 	SpecularLightShader* m_LightShader;
 	SphereMesh* m_Mesh;
+	Model* m_testMesh;
 	Light* m_Light;
 	float iterator = 0;
 
