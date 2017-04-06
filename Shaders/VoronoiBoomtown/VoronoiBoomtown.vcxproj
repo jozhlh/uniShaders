@@ -115,26 +115,51 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App1.cpp" />
+    <ClCompile Include="AppBoomtown.cpp" />
+    <ClCompile Include="Cell.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="HorizontalBlurShader.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SpecularLightShader.cpp" />
     <ClCompile Include="TessellationShader.cpp" />
     <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="UiManager.cpp" />
     <ClCompile Include="VerticalBlurShader.cpp" />
+    <ClCompile Include="VoronoiMap.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h" />
+    <ClInclude Include="AppBoomtown.h" />
+    <ClInclude Include="Cell.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="HorizontalBlurShader.h" />
+    <ClInclude Include="Region.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="SpecularLightShader.h" />
     <ClInclude Include="TessellationShader.h" />
     <ClInclude Include="TextureShader.h" />
     <ClInclude Include="UiManager.h" />
     <ClInclude Include="VerticalBlurShader.h" />
+    <ClInclude Include="VoronoiMap.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\horizontalBlur_ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\horizontalBlur_vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\light_ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\light_vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\noise_ds.hlsl">

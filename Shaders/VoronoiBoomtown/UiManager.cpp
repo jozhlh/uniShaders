@@ -16,7 +16,7 @@ UiManager::UiManager()
 	playAnimation = true;
 	animationSpeed = 10.0f;
 	frameRate = 0.0f;
-	sphereSize = 5.0f;
+	sphereSize = 0.01f;
 	spherePosition = XMFLOAT3(0.0f, 0.0f, 30.0f);
 
 	blurLoops = 1;
@@ -76,7 +76,7 @@ void UiManager::ShowUi(bool* p_open)
 	{
 		if (ImGui::TreeNode("Sphere Mesh"))
 		{
-			ImGui::DragFloat("Size of Base Mesh", &sphereSize, 0.1f, 0.5f, 200.f, "%.05f ns");
+			ImGui::DragFloat("Size of Base Mesh", &sphereSize, 0.0001f, 0.0001f, 0.5f, "%.05f ns");
 			if (ImGui::TreeNode("Position of Sphere"))
 			{
 				ImGui::DragFloat("X Position", &spherePosition.x, 1.0f, -200.f, 200.f, "%.5f ns");
