@@ -121,6 +121,7 @@
     </ClCompile>
     <ClCompile Include="HorizontalBlurShader.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Region.cpp" />
     <ClCompile Include="SpecularLightShader.cpp" />
     <ClCompile Include="TessellationShader.cpp" />
     <ClCompile Include="TextureShader.cpp" />

@@ -5,6 +5,8 @@
 #define _VORONOIMAP_H
 
 #include "Region.h"
+#include <cctype>
+#include <random>
 
 using namespace std;
 
@@ -17,20 +19,25 @@ public:
 	void Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection,
 		SpecularLightShader* shader, Light* light, XMFLOAT3 cameraPosition);
 
+private:
+	void GenerateRegions(int num);
+	//bool CompareRegionSize(const Region* first, const Region* second);
+	void SortRegionsBySize();
+	void AssignCellsToRegions();
+	float RegionDistance(Cell* cell, Region* region);
+
 	list<Region*> regions;
 	list<Cell*> unassignedCells;
 	CubeMesh* m_CellModelTemplate1;
 	CubeMesh* m_CellModelTemplate2;
 	int numOfRegions;
 	float cellSize;
+	float mapSize;
 	float yPos;
 	int xCells;
 	int zCells;
 
-	void GenerateRegions(int num);
-	void SortRegionsBySize();
-	void AssignCellsToRegions();
-	float RegionDistance(Cell* cell, Region* region);
+
 };
 
 #endif
