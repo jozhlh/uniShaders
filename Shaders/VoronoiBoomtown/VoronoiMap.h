@@ -5,6 +5,7 @@
 #define _VORONOIMAP_H
 
 #include "Region.h"
+#include "ModelBank.h"
 #include <cctype>
 #include <random>
 
@@ -30,6 +31,7 @@ private:
 	list<Cell*> unassignedCells;
 	CubeMesh* m_CellModelTemplate1;
 	CubeMesh* m_CellModelTemplate2;
+	ModelBank* modelBank;
 	int numOfRegions;
 	float cellSize;
 	float mapSize;

@@ -10,12 +10,17 @@ Region::~Region()
 {
 }
 
-void Region::Init(ID3D11Device * device, ID3D11DeviceContext * deviceContext)
+void Region::Init(ID3D11Device * device, ID3D11DeviceContext * deviceContext, int regionNum)
 {
 	nodeSphere = new SphereMesh(device, deviceContext, L"../res/bunny.png", 20);
 	centreSphere = new SphereMesh(device, deviceContext, L"../res/white.png", 20);
 	sphereScale = 0.2f;
 	numOfCells = 0;
+	id = regionNum;
+	for each (Cell* cell in m_ChildCells)
+	{
+		cell->SetParent(id);
+	}
 }
 
 void Region::CalculateCentre(float cellArea)
@@ -43,11 +48,37 @@ void Region::DifferentiateCells(float r)
 	}
 }
 
+void Region::GiveCell(Cell* m_Cell)
+{
+	m_ChildCells.push_back(m_Cell);
+	numOfCells++;
+}
+
+void Region::AssignMajorBuilding(Building * building)
+{
+	centralBuilding = building;
+	// Calculate building placement / rotation
+		// Get Central Cell Coordinates
+			// validPlacement = true
+				// for xIterator = 0; xIterator < dimensions.x
+					// for zIterator = 0; zIterator < dimensions.z
+						// targetCoords = ((-(dimensions.x / 2 (rounded down))+ xIterator) * cellSize, (-(dimensions.y / 2 (rounded down))+ zIterator) * cellSize)
+						// validCell = false
+						// for each cell in child cells
+							// if cell.contains( targetCoords)
+								// validCell = true
+								// break
+						// if validCell == false rotate and start over
+
+	
+}
+
 void Region::Render(ID3D11DeviceContext * deviceContext, const XMMATRIX & world, const XMMATRIX & view, const XMMATRIX & projection, SpecularLightShader * shader, Light * light, XMFLOAT3 cameraPosition)
 {
 	XMMATRIX worldMatrix = world;
 	// Translate sphere mesh
 	worldMatrix = XMMatrixMultiply(XMMatrixScaling(sphereScale, sphereScale, sphereScale), XMMatrixTranslation(nodeCoords.x, yOff, nodeCoords.y));
+	
 
 	//// Send geometry data (from mesh)
 	nodeSphere->SendData(deviceContext);

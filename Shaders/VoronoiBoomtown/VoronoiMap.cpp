@@ -8,13 +8,17 @@ VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 	zCells = 80;
 	m_CellModelTemplate1 = new CubeMesh(device, deviceContext, L"../res/checkerboard.png", 2); // I think the resolution (2) refers to tris per face
 	m_CellModelTemplate2 = new CubeMesh(device, deviceContext, L"../res/DefaultDiffuse.png", 2);
+	modelBank = new ModelBank();
+	modelBank->Init(device, deviceContext);
 
 	GenerateRegions(30);
 	AssignCellsToRegions();
+	int iterator = 0;
 	for each (Region* region in regions)
 	{
-		region->Init(device, deviceContext);
+		region->Init(device, deviceContext, iterator);
 		region->CalculateCentre(cellSize*cellSize);
+		iterator++;
 		//region->DifferentiateCells(r * .2f);
 		//r++;
 	}

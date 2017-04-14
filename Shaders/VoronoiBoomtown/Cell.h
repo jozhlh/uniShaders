@@ -14,14 +14,16 @@ public:
 	void SetCoordinates(float x, float y, float z) { position = XMFLOAT3(x, y, z); }
 	XMFLOAT3 GetCoordinates() { return position; }
 	float GetScale() { return scale; }
-
+	void SetParent(int regionID) { parentRegion = regionID; }
 	void Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection,
 		SpecularLightShader* shader, Light* light, XMFLOAT3 cameraPosition);
 
 private:
 	float scale;
 	XMFLOAT3 position;
-	CubeMesh* m_CellModel;
+	CubeMesh* m_SurfaceModel;
+	int parentRegion;
+	bool occupied;
 };
 
 #endif // !_CELL_H

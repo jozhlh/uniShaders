@@ -116,11 +116,13 @@
   <ItemGroup>
     <ClCompile Include="App1.cpp" />
     <ClCompile Include="AppBoomtown.cpp" />
+    <ClCompile Include="Building.cpp" />
     <ClCompile Include="Cell.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="HorizontalBlurShader.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelBank.cpp" />
     <ClCompile Include="Region.cpp" />
     <ClCompile Include="SpecularLightShader.cpp" />
     <ClCompile Include="TessellationShader.cpp" />
@@ -138,6 +140,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="HorizontalBlurShader.h" />
+    <ClInclude Include="ModelBank.h" />
+    <ClInclude Include="Building.h" />
     <ClInclude Include="Region.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
