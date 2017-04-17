@@ -1,10 +1,21 @@
 #include "Building.h"
 
 
-void Building::Init(Model* model, float width, float length, int importance)
+Building::Building()
+{
+}
+
+Building::~Building()
+{
+}
+
+void Building::Init(Model* model, float width, float height, float length, float size, int importance)
 {
 	asset = model;
 	dimensions.x = width;
-	dimensions.y = length;
+	dimensions.y = height;
+	dimensions.z = length;
 	priority = importance;
+	scale = size;
+
 }

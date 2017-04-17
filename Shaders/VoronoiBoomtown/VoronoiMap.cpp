@@ -3,21 +3,22 @@
 VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 {
 	yPos = 0;
-	cellSize = .4f;
-	xCells = 80;
-	zCells = 80;
+	cellSize = .5f;
+	xCells = 50;
+	zCells = 50;
 	m_CellModelTemplate1 = new CubeMesh(device, deviceContext, L"../res/checkerboard.png", 2); // I think the resolution (2) refers to tris per face
 	m_CellModelTemplate2 = new CubeMesh(device, deviceContext, L"../res/DefaultDiffuse.png", 2);
 	modelBank = new ModelBank();
 	modelBank->Init(device, deviceContext);
 
-	GenerateRegions(30);
+	GenerateRegions(MAJOR_BUILDINGS);
 	AssignCellsToRegions();
 	int iterator = 0;
 	for each (Region* region in regions)
 	{
 		region->Init(device, deviceContext, iterator);
 		region->CalculateCentre(cellSize*cellSize);
+		
 		iterator++;
 		//region->DifferentiateCells(r * .2f);
 		//r++;
@@ -27,6 +28,8 @@ VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 	for each (Region* region in regions)
 	{
 		region->DifferentiateCells(r * .05f);
+		region->AssignMajorBuilding(&modelBank->majorBuildings[0], cellSize);
+		region->PlaceDerrick(&modelBank->minorBuildings[0], cellSize);
 		r++;
 	}
 }
@@ -62,8 +65,8 @@ void VoronoiMap::GenerateRegions(int num)
 	
 	for (int r = 0; r < num; r++)
 	{
-		uniform_int_distribution<int> xDist(0, xCells *cellSize);
-		uniform_int_distribution<int> zDist(0, zCells *cellSize);
+		uniform_int_distribution<int> xDist(1, (xCells *cellSize) - 1);
+		uniform_int_distribution<int> zDist(1, (zCells *cellSize) - 1);
 		Region* m_Region = new Region();
 		m_Region->SetNodeCoordinates(xDist(mt)-(0.5* mapSize), zDist(mt) - (0.5* mapSize));
 		regions.push_back(m_Region);
@@ -81,11 +84,11 @@ void VoronoiMap::AssignCellsToRegions()
 			Cell* m_Cell;
 			if (z % 2 > 0)
 			{
-				m_Cell = new Cell(m_CellModelTemplate1, cellSize);
+				m_Cell = new Cell(m_CellModelTemplate1, m_CellModelTemplate2, cellSize);
 			}
 			else
 			{
-				m_Cell = new Cell(m_CellModelTemplate2, cellSize);
+				m_Cell = new Cell(m_CellModelTemplate1, m_CellModelTemplate2, cellSize);
 			}
 			m_Cell->SetCoordinates((mapSize * -0.5) + ((cellSize*0.5f) + (x*cellSize)), yPos, (mapSize * -0.5) + ((cellSize*0.5f) + (z*cellSize)));
 			unassignedCells.push_back(m_Cell);

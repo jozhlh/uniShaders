@@ -79,13 +79,13 @@ void AppBoomtown::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int scre
 	// Initialise light properties
 	m_Light->SetAmbientColour(0.2f, 0.2f, 0.2f, 1.0f);
 
-	m_Light->SetDiffuseColour(0.8f, 0.8f, 0.8f, 1.0f);
+	m_Light->SetDiffuseColour(0.9f, 0.8f, 0.3f, 1.0f);
 
 	m_Light->SetDirection(0.5f, -0.5f, 0.0f);
 
 	m_Light->SetSpecularPower(25.0f);
 
-	m_Light->SetSpecularColour(0.0f, 0.0f, 1.0f, 1.0f);
+	m_Light->SetSpecularColour(1.0f, 1.0f, 6.0f, 1.0f);
 
 	m_VoronoiMap = new VoronoiMap(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext());
 

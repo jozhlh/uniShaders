@@ -9,11 +9,12 @@ public:
 	Building();
 	~Building();
 
-	void Init(Model* model, float width, float length, int importance);
+	void Init(Model* model, float width, float height, float length, float size, int importance);
 
 	int priority;
+	float scale;
 	Model* asset;
-	XMFLOAT2 dimensions;
+	XMFLOAT3 dimensions;
 	XMFLOAT2 offset; // for putting the origin at the centre of a cell
 };
 
