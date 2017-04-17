@@ -19,7 +19,7 @@ UiManager::UiManager()
 	sphereSize = 0.01f;
 	spherePosition = XMFLOAT3(0.0f, 0.0f, 30.0f);
 
-	blurLoops = 1;
+	blurLoops = 0;
 	blurWeightings.x = 0.4062f;
 	blurWeightings.y = 0.2442f;
 	blurWeightings.z = 0.0545f;

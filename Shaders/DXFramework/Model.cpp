@@ -11,7 +11,7 @@ Model::Model(ID3D11Device* device, ID3D11DeviceContext* deviceContext, WCHAR* te
 	InitBuffers(device);
 
 	// Load the texture for this model.
-	LoadTexture(device, deviceContext, textureFilename);
+	//LoadTexture(device, deviceContext, textureFilename);
 }
 
 

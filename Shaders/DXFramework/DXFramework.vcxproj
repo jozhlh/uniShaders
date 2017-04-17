@@ -90,6 +90,7 @@
     <ClInclude Include="imgui-master\imgui.h" />
     <ClInclude Include="imgui-master\imgui_impl_dx11.h" />
     <ClInclude Include="imgui-master\imgui_internal.h" />
+    <ClInclude Include="ImprovedNoise.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
@@ -97,6 +98,8 @@
     <ClInclude Include="OrthoMesh.h" />
     <ClInclude Include="PlaneMesh.h" />
     <ClInclude Include="PointMesh.h" />
+    <ClInclude Include="ProcCubeMesh.h" />
+    <ClInclude Include="ProcMesh.h" />
     <ClInclude Include="QuadMesh.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Sphere.h" />
@@ -120,6 +123,7 @@
     <ClCompile Include="imgui-master\imgui_demo.cpp" />
     <ClCompile Include="imgui-master\imgui_draw.cpp" />
     <ClCompile Include="imgui-master\imgui_impl_dx11.cpp" />
+    <ClCompile Include="ImprovedNoise.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -127,6 +131,8 @@
     <ClCompile Include="OrthoMesh.cpp" />
     <ClCompile Include="PlaneMesh.cpp" />
     <ClCompile Include="PointMesh.cpp" />
+    <ClCompile Include="ProcCubeMesh.cpp" />
+    <ClCompile Include="ProcMesh.cpp" />
     <ClCompile Include="QuadMesh.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Sphere.cpp" />

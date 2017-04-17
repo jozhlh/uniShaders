@@ -24,14 +24,18 @@ private:
 	void GenerateRegions(int num);
 	//bool CompareRegionSize(const Region* first, const Region* second);
 	void SortRegionsBySize();
-	void AssignCellsToRegions();
+	void AssignCellsToRegions(ID3D11Device *device, ID3D11DeviceContext *deviceContext);
 	float RegionDistance(Cell* cell, Region* region);
 
 	list<Region*> regions;
 	list<Cell*> unassignedCells;
-	CubeMesh* m_CellModelTemplate1;
-	CubeMesh* m_CellModelTemplate2;
+	//ProcCubeMesh* m_CellModelTemplate1;
+	//ProcCubeMesh* m_CellModelTemplate2;
 	ModelBank* modelBank;
+	ImprovedNoise* noiseEngine;
+	Texture* stockTexture;
+	NoiseData noise;
+	XMFLOAT3 desertColour;
 	int numOfRegions;
 	float cellSize;
 	float mapSize;

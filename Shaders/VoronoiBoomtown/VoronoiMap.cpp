@@ -2,17 +2,21 @@
 
 VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 {
+	desertColour = XMFLOAT3(1.0f, 0.95f, 0.6f);
 	yPos = 0;
 	cellSize = .5f;
 	xCells = 50;
 	zCells = 50;
-	m_CellModelTemplate1 = new CubeMesh(device, deviceContext, L"../res/checkerboard.png", 2); // I think the resolution (2) refers to tris per face
-	m_CellModelTemplate2 = new CubeMesh(device, deviceContext, L"../res/DefaultDiffuse.png", 2);
+	noise.Height = 2.0f;
+	noise.Resolution = 7.5f;
+	noise.Location = XMFLOAT2(1.0f, 1.0f);
+	noise.scaleModifier = cellSize;
+	noiseEngine = new ImprovedNoise();
 	modelBank = new ModelBank();
 	modelBank->Init(device, deviceContext);
-
-	GenerateRegions(MAJOR_BUILDINGS);
-	AssignCellsToRegions();
+	stockTexture = new Texture(device, deviceContext, L"../res/testObject0.png");
+	GenerateRegions(7);
+	AssignCellsToRegions(device, deviceContext);
 	int iterator = 0;
 	for each (Region* region in regions)
 	{
@@ -27,7 +31,7 @@ VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 	float r = 0.0f;
 	for each (Region* region in regions)
 	{
-		region->DifferentiateCells(r * .05f);
+		//region->DifferentiateCells(r * .05f);
 		region->AssignMajorBuilding(&modelBank->majorBuildings[0], cellSize);
 		region->PlaceDerrick(&modelBank->minorBuildings[0], cellSize);
 		r++;
@@ -36,10 +40,28 @@ VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 
 VoronoiMap::~VoronoiMap()
 {
+	if (noiseEngine)
+	{
+		delete noiseEngine;
+		noiseEngine = nullptr;
+	}
+
+	if (modelBank)
+	{
+		delete modelBank;
+		modelBank = nullptr;
+	}
+
 	for each (Cell* cell in unassignedCells)
 	{
 		delete cell;
 		cell = nullptr;
+	}
+
+	for each (Region* region in regions)
+	{
+		delete region;
+		region = nullptr;
 	}
 }
 
@@ -48,11 +70,11 @@ void VoronoiMap::Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &worl
 {
 	for each (Cell* cell in unassignedCells)
 	{
-		cell->Render(deviceContext, world, view, projection, shader, light, cameraPosition);
+		cell->Render(deviceContext, world, view, projection, shader, light, cameraPosition, stockTexture, true, desertColour);
 	}
 	for each (Region* region in regions)
 	{
-		region->Render(deviceContext, world, view, projection, shader, light, cameraPosition);
+		region->Render(deviceContext, world, view, projection, shader, light, cameraPosition, stockTexture, false, desertColour);
 	}
 }
 
@@ -71,25 +93,16 @@ void VoronoiMap::GenerateRegions(int num)
 		m_Region->SetNodeCoordinates(xDist(mt)-(0.5* mapSize), zDist(mt) - (0.5* mapSize));
 		regions.push_back(m_Region);
 	}
-
 }
 
-void VoronoiMap::AssignCellsToRegions()
+void VoronoiMap::AssignCellsToRegions(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 {
 	
 	for (int x = 0; x < xCells; x++)
 	{
 		for (int z = 0; z < zCells; z++)
 		{
-			Cell* m_Cell;
-			if (z % 2 > 0)
-			{
-				m_Cell = new Cell(m_CellModelTemplate1, m_CellModelTemplate2, cellSize);
-			}
-			else
-			{
-				m_Cell = new Cell(m_CellModelTemplate1, m_CellModelTemplate2, cellSize);
-			}
+			Cell* m_Cell = new Cell(device, deviceContext, x, z, xCells, zCells, &noise, cellSize, noiseEngine);;
 			m_Cell->SetCoordinates((mapSize * -0.5) + ((cellSize*0.5f) + (x*cellSize)), yPos, (mapSize * -0.5) + ((cellSize*0.5f) + (z*cellSize)));
 			unassignedCells.push_back(m_Cell);
 		}
@@ -102,6 +115,10 @@ void VoronoiMap::AssignCellsToRegions()
 
 		for each (Region* region in regions)
 		{
+			if (cell->CellContainsPoint(XMFLOAT3(region->GetNode().x, 0, region->GetNode().y)))
+			{
+				region->SetNodeCoordinates(cell->GetCoordinates().x, cell->GetCoordinates().z);
+			}
 			if (RegionDistance(cell, region) < shortestRegionDistance)
 			{
 				shortestRegionDistance = RegionDistance(cell, region);
@@ -117,6 +134,8 @@ void VoronoiMap::AssignCellsToRegions()
 
 		m_ClosestRegion->GiveCell(cell);
 	}
+
+
 }
 
 float VoronoiMap::RegionDistance(Cell* cell, Region* region)

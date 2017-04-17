@@ -9,6 +9,26 @@ Region::Region()
 
 Region::~Region()
 {
+	if (nodeSphere)
+	{
+		delete nodeSphere;
+		nodeSphere = nullptr;
+	}
+	if (centreSphere)
+	{
+		delete centreSphere;
+		centreSphere = nullptr;
+	}
+	if (centralBuilding)
+	{
+		delete centralBuilding;
+		centralBuilding = nullptr;
+	}
+	if (derrick)
+	{
+		delete derrick;
+		derrick = nullptr;
+	}
 }
 
 void Region::Init(ID3D11Device * device, ID3D11DeviceContext * deviceContext, int regionNum)
@@ -48,18 +68,6 @@ void Region::CalculateCentre(float cellArea)
 		{
 			centreOfRegion.x = cell->GetCoordinates().x;
 			centreOfRegion.z = cell->GetCoordinates().z;
-			break;
-		}
-	}
-
-	for each (Cell* cell in m_ChildCells)
-	{
-		//cell->altTexture = true;
-		// if cell.contains( targetCoords)
-		if (cell->CellContainsPoint(XMFLOAT3(nodeCoords.x, 0.0f, nodeCoords.y)))
-		{
-			nodeCoords.x = cell->GetCoordinates().x;
-			nodeCoords.y = cell->GetCoordinates().z;
 			break;
 		}
 	}
@@ -192,7 +200,8 @@ void Region::PlaceDerrick(Building * derrickModel, float cellSize)
 }
 
 
-void Region::Render(ID3D11DeviceContext * deviceContext, const XMMATRIX & world, const XMMATRIX & view, const XMMATRIX & projection, SpecularLightShader * shader, Light * light, XMFLOAT3 cameraPosition)
+void Region::Render(ID3D11DeviceContext * deviceContext, const XMMATRIX & world, const XMMATRIX & view, const XMMATRIX & projection,
+	SpecularLightShader * shader, Light * light, XMFLOAT3 cameraPosition, Texture* tex, bool tile, XMFLOAT3 tileColour)
 {
 	XMMATRIX worldMatrix = world;
 	// Translate sphere mesh
@@ -202,13 +211,13 @@ void Region::Render(ID3D11DeviceContext * deviceContext, const XMMATRIX & world,
 	//// Send geometry data (from mesh)
 	nodeSphere->SendData(deviceContext);
 	//// Set shader parameters (matrices and texture)
-	shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, nodeSphere->GetTexture(), light, cameraPosition);
+	shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, tile, tileColour);
 	//// Render object (combination of mesh geometry and shader process
 	shader->Render(deviceContext, nodeSphere->GetIndexCount());
 	// Reset world matrix
-	float deScale = 1.0f;
-	if (deScale > 0) deScale = 1.0f / sphereScale;
-	worldMatrix = XMMatrixMultiply(XMMatrixTranslation(-nodeCoords.x, -yOff, -nodeCoords.y), XMMatrixScaling(deScale, deScale, deScale));
+	//float deScale = 1.0f;
+	//if (deScale > 0) deScale = 1.0f / sphereScale;
+	//worldMatrix = XMMatrixMultiply(XMMatrixTranslation(-nodeCoords.x, -yOff, -nodeCoords.y), XMMatrixScaling(deScale, deScale, deScale));
 
 	// Translate sphere mesh
 	worldMatrix = XMMatrixMultiply(XMMatrixScaling(sphereScale * 1.2f, sphereScale * 1.2f, sphereScale * 1.2f), XMMatrixTranslation(centreOfRegion.x, yOff, centreOfRegion.z));
@@ -216,29 +225,32 @@ void Region::Render(ID3D11DeviceContext * deviceContext, const XMMATRIX & world,
 	//// Send geometry data (from mesh)
 	centreSphere->SendData(deviceContext);
 	//// Set shader parameters (matrices and texture)
-	shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, centreSphere->GetTexture(), light, cameraPosition);
+	shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, tile, tileColour);
 	//// Render object (combination of mesh geometry and shader process
 	shader->Render(deviceContext, centreSphere->GetIndexCount());
 	// Reset world matrix
-	deScale = 1.0f;
-	if (deScale > 0) deScale = 1.0f / sphereScale;
-	worldMatrix = XMMatrixMultiply(XMMatrixTranslation(-centreOfRegion.x, -yOff, -centreOfRegion.z), XMMatrixScaling(deScale, deScale, deScale));
-
-	RenderCentralBuilding(deviceContext, world, view, projection, shader, light, cameraPosition);
-
+	//deScale = 1.0f;
+	//if (deScale > 0) deScale = 1.0f / sphereScale;
+	//worldMatrix = XMMatrixMultiply(XMMatrixTranslation(-centreOfRegion.x, -yOff, -centreOfRegion.z), XMMatrixScaling(deScale, deScale, deScale));
+	
+	if (hasMajorBuilding)
+	{
+		RenderCentralBuilding(deviceContext, world, view, projection, shader, light, cameraPosition, tex, tile, tileColour);
+	}
+	
 	if (hasDerrick)
 	{
 		worldMatrix = XMMatrixMultiply(XMMatrixScaling(derrick->scale, derrick->scale, derrick->scale), XMMatrixTranslation(nodeCoords.x, yOff, nodeCoords.y));
 		//// Send geometry data (from mesh)
 		derrick->asset->SendData(deviceContext);
 		//// Set shader parameters (matrices and texture)
-		shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, derrick->asset->GetTexture(), light, cameraPosition);
+		shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, tile, tileColour);
 		//// Render object (combination of mesh geometry and shader process
 		shader->Render(deviceContext, derrick->asset->GetIndexCount());
 		// Reset world matrix
-		deScale = 1.0f;
-		if (deScale > 0) deScale = 1.0f / derrick->scale;
-		worldMatrix = XMMatrixMultiply(XMMatrixTranslation(-nodeCoords.x, -yOff, -nodeCoords.y), XMMatrixScaling(deScale, deScale, deScale));
+		//deScale = 1.0f;
+		//if (deScale > 0) deScale = 1.0f / derrick->scale;
+		//worldMatrix = XMMatrixMultiply(XMMatrixTranslation(-nodeCoords.x, -yOff, -nodeCoords.y), XMMatrixScaling(deScale, deScale, deScale));
 	}
 	
 }
@@ -274,12 +286,6 @@ bool Region::CheckOrientation(XMFLOAT3 centre, int xIterator, int zIterator, flo
 		targetCoords.z = (targetCoords.z - (z * cellSize * 0.5)) + (zIterator*cellSize);
 	}
 	
-	
-
-
-	//targetCoords.x = (targetCoords.x) + (xIterator*cellSize);
-	//targetCoords.z = (targetCoords.z) + (zIterator*cellSize);
-
 	// validCell = false
 	bool validCell = false;
 	// for each cell in child cells
@@ -309,29 +315,23 @@ bool Region::CheckOrientation(XMFLOAT3 centre, int xIterator, int zIterator, flo
 
 
 
-void Region::RenderCentralBuilding(ID3D11DeviceContext * deviceContext, const XMMATRIX & world, const XMMATRIX & view, const XMMATRIX & projection, SpecularLightShader * shader, Light * light, XMFLOAT3 cameraPosition)
+void Region::RenderCentralBuilding(ID3D11DeviceContext * deviceContext, const XMMATRIX & world, const XMMATRIX & view, const XMMATRIX & projection,
+	SpecularLightShader * shader, Light * light, XMFLOAT3 cameraPosition, Texture* tex, bool tile, XMFLOAT3 tileColour)
 {
-	if (hasMajorBuilding)
-	{
-		XMMATRIX worldMatrix = world;
-		// Translate sphere mesh
-		XMVECTOR axis = { 0.0f, 1.0f, 0.0f };
+	
+	XMMATRIX worldMatrix = world;
+	// Translate sphere mesh
+	XMVECTOR axis = { 0.0f, 1.0f, 0.0f };
 
-		XMMATRIX tempMatrix = XMMatrixMultiply(XMMatrixScaling(centralBuilding->scale, centralBuilding->scale, centralBuilding->scale), XMMatrixRotationAxis(axis, buildingRotation));
-		//worldMatrix = XMMatrixScaling(centralBuilding->scale, centralBuilding->scale, centralBuilding->scale);
-		worldMatrix = XMMatrixMultiply(tempMatrix, XMMatrixTranslation(buildingLocation.x, yOff, buildingLocation.z));
+	XMMATRIX tempMatrix = XMMatrixMultiply(XMMatrixScaling(centralBuilding->scale, centralBuilding->scale, centralBuilding->scale), XMMatrixRotationAxis(axis, buildingRotation));
+	//worldMatrix = XMMatrixScaling(centralBuilding->scale, centralBuilding->scale, centralBuilding->scale);
+	worldMatrix = XMMatrixMultiply(tempMatrix, XMMatrixTranslation(buildingLocation.x, yOff, buildingLocation.z));
 
-		//// Send geometry data (from mesh)
-		centralBuilding->asset->SendData(deviceContext);
-		//// Set shader parameters (matrices and texture)
-		shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, centralBuilding->asset->GetTexture(), light, cameraPosition);
-		//// Render object (combination of mesh geometry and shader process
-		shader->Render(deviceContext, centralBuilding->asset->GetIndexCount());
-		// Reset world matrix
-		float deScale = 1.0f;
-		if (deScale > 0) deScale = 1.0f / centralBuilding->scale;
-		worldMatrix = XMMatrixMultiply(XMMatrixTranslation(-buildingLocation.x, -yOff, -buildingLocation.z), XMMatrixRotationAxis(axis, -buildingRotation));
-		worldMatrix = XMMatrixScaling(deScale, deScale, deScale);
-	}
+	//// Send geometry data (from mesh)
+	centralBuilding->asset->SendData(deviceContext);
+	//// Set shader parameters (matrices and texture)
+	shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, tile, tileColour);
+	//// Render object (combination of mesh geometry and shader process
+	shader->Render(deviceContext, centralBuilding->asset->GetIndexCount());
 }
 

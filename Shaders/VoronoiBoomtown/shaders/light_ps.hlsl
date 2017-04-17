@@ -11,6 +11,8 @@ cbuffer LightBuffer : register(b0)
     float3 lightDirection;
     float specularPower;
 	float4 specularColor;
+    bool floorTile;
+    float3 desertColor;
 };
 
 struct InputType
@@ -65,7 +67,19 @@ float4 main(InputType input) : SV_TARGET
 
 	// Turn this on to see the texture
 	// Multiply the texture pixel and the final diffuse color to get the final pixel color result.
-	color = color * textureColor;
+    if (floorTile)
+    {
+        float4 c;
+        c.x = desertColor.x;
+        c.y = desertColor.y;
+        c.z = desertColor.z;
+        c.w = 1.0f;
+        color = color * c;
+    }
+    else
+    {
+        color = color * textureColor;
+    }
 
 	// Add the specular component last to the output colour.
 	color = saturate(color + finalSpec);

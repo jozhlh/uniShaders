@@ -112,7 +112,7 @@ void SpecularLightShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 }
 
 
-void SpecularLightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light, XMFLOAT3 cameraPos)
+void SpecularLightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light, XMFLOAT3 cameraPos, bool tile, XMFLOAT3 tileColour)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -157,6 +157,8 @@ void SpecularLightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext
 	lightPtr->direction = light->GetDirection();
 	lightPtr->specularPower = light->GetSpecularPower();
 	lightPtr->specularColor = light->GetSpecularColour();
+	lightPtr->ground = tile;
+	lightPtr->floorColour = tileColour;
 	deviceContext->Unmap(m_lightBuffer, 0);
 	bufferNumber = 0;
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);

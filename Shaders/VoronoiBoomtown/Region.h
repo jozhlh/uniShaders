@@ -24,7 +24,7 @@ public:
 	
 	//bool operator<(const Region* rightHandSide) const { return this->GetCellCount() > rightHandSide->GetCellCount(); }
 	void Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection,
-		SpecularLightShader* shader, Light* light, XMFLOAT3 cameraPosition);
+		SpecularLightShader* shader, Light* light, XMFLOAT3 cameraPosition, Texture* tex, bool tile, XMFLOAT3 tileColour);
 
 	XMFLOAT2 GetNode() { return nodeCoords; }
 	void SetNodeCoordinates(float x, float z) { nodeCoords = XMFLOAT2(x, z); }
@@ -32,7 +32,8 @@ public:
 
 private:
 	bool CheckOrientation(XMFLOAT3 centre, int xIterator, int zIterator, float x, float z, float cellSize);
-	void RenderCentralBuilding(ID3D11DeviceContext * deviceContext, const XMMATRIX & world, const XMMATRIX & view, const XMMATRIX & projection, SpecularLightShader * shader, Light * light, XMFLOAT3 cameraPosition);
+	void RenderCentralBuilding(ID3D11DeviceContext * deviceContext, const XMMATRIX & world, const XMMATRIX & view, const XMMATRIX & projection,
+		SpecularLightShader * shader, Light * light, XMFLOAT3 cameraPosition, Texture* tex, bool tile, XMFLOAT3 tileColour);
 
 	std::list<Cell*> m_ChildCells;
 	XMFLOAT2 nodeCoords;

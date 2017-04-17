@@ -77,13 +77,13 @@ void AppBoomtown::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int scre
 
 
 	// Initialise light properties
-	m_Light->SetAmbientColour(0.2f, 0.2f, 0.2f, 1.0f);
+	m_Light->SetAmbientColour(0.5f, 0.5f, 0.5f, 1.0f);
 
 	m_Light->SetDiffuseColour(0.9f, 0.8f, 0.3f, 1.0f);
 
 	m_Light->SetDirection(0.5f, -0.5f, 0.0f);
 
-	m_Light->SetSpecularPower(25.0f);
+	m_Light->SetSpecularPower(50.0f);
 
 	m_Light->SetSpecularColour(1.0f, 1.0f, 6.0f, 1.0f);
 
@@ -198,38 +198,38 @@ bool AppBoomtown::Frame()
 
 	if (!result) return false;
 
-	// Get animation position from UI
-	sphereLerp = m_UiManager->tessellationWarp.lerpAmount * ANIM_CAP;
+	//// Get animation position from UI
+	//sphereLerp = m_UiManager->tessellationWarp.lerpAmount * ANIM_CAP;
 
-	// If the sphere is being animated
-	if (m_UiManager->playAnimation)
-	{
-		// Choose which direction the animation is going
-		if (m_UiManager->tessellationWarp.targetSin)
-		{
-			if (sphereLerp < ANIM_CAP)
-			{
-				sphereLerp += (dt * m_UiManager->animationSpeed);
-			}
-			else if (m_UiManager->playAnimation)
-			{
-				m_UiManager->tessellationWarp.targetSin = false;
-			}
-		}
-		else
-		{
-			if (sphereLerp > 0.0f)
-			{
-				sphereLerp -= (dt * m_UiManager->animationSpeed);
-			}
-			else if (m_UiManager->playAnimation)
-			{
-				m_UiManager->tessellationWarp.targetSin = true;
-			}
-		}
-	}
+	//// If the sphere is being animated
+	//if (m_UiManager->playAnimation)
+	//{
+	//	// Choose which direction the animation is going
+	//	if (m_UiManager->tessellationWarp.targetSin)
+	//	{
+	//		if (sphereLerp < ANIM_CAP)
+	//		{
+	//			sphereLerp += (dt * m_UiManager->animationSpeed);
+	//		}
+	//		else if (m_UiManager->playAnimation)
+	//		{
+	//			m_UiManager->tessellationWarp.targetSin = false;
+	//		}
+	//	}
+	//	else
+	//	{
+	//		if (sphereLerp > 0.0f)
+	//		{
+	//			sphereLerp -= (dt * m_UiManager->animationSpeed);
+	//		}
+	//		else if (m_UiManager->playAnimation)
+	//		{
+	//			m_UiManager->tessellationWarp.targetSin = true;
+	//		}
+	//	}
+	//}
 	// Lerp between surface modifiers
-	m_UiManager->tessellationWarp.lerpAmount = sphereLerp / ANIM_CAP;
+	//m_UiManager->tessellationWarp.lerpAmount = sphereLerp / ANIM_CAP;
 
 	// Display UI window
 	bool show_test_window = true;

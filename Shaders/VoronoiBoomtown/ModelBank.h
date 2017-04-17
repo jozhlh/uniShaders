@@ -3,8 +3,8 @@
 
 #include "Building.h"
 
-#define MAJOR_BUILDINGS 5
-#define MINOR_BUILDINGS 4
+#define MAJOR_BUILDINGS 3
+#define MINOR_BUILDINGS 3
 
 class ModelBank
 {
