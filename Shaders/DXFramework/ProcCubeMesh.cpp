@@ -210,7 +210,7 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	// Set the gap between cells (for gridlines)
-	float border = 0.00f;
+	float border = 0.05f;
 	// Calculate vertex count
 	// 6 vertices per quad, times 6 for each face
 	// Set the number of vertices in the vertex array.

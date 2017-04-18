@@ -66,7 +66,7 @@ void AppBoomtown::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int scre
 	m_TextureShader = new TextureShader(m_Direct3D->GetDevice(), hwnd);
 
 	// Create Geometry with checkerboard texture
-	m_testModel0 = new Model(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/testObject0.png", L"../res/testObject0.obj");
+	m_testModel0 = new Model(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/palette.png", L"../res/testObject0.obj");
 
 	// ortho size and position set based on window size
 	// Position default at 0x0 centre window, to offset change values (pixel)
@@ -262,8 +262,9 @@ bool AppBoomtown::RenderToTexture()
 	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 
 	// Clear the render to texture. use the RGBA value to set background of texture // WHITE
-	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
-
+	//m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
+	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 0.95f, 0.6f, 1.0f);
+	//(1.0f, 0.95f, 0.6f);
 	//// Generate the view matrix based on the camera's position.
 	m_Camera->Update();
 
