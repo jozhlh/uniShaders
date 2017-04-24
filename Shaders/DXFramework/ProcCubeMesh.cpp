@@ -216,26 +216,26 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 	// Set the number of vertices in the vertex array.
 	m_vertexCount = 30;
 
-	if (x < (xSegs - 1))
-	{
-		// don't create right face
-		m_vertexCount -= 6;
-	}
-	if (x > 0)
-	{
-		// don't create left face
-		m_vertexCount -= 6;
-	}
-	if (z < (zSegs - 1))
-	{
-		// don't create back face
-		m_vertexCount -= 6;
-	}
-	if (z > 0)
-	{
-		// don't create front face
-		m_vertexCount -= 6;
-	}
+	//if (x < (xSegs - 1))
+	//{
+	//	// don't create right face
+	//	m_vertexCount -= 6;
+	//}
+	//if (x > 0)
+	//{
+	//	// don't create left face
+	//	m_vertexCount -= 6;
+	//}
+	//if (z < (zSegs - 1))
+	//{
+	//	// don't create back face
+	//	m_vertexCount -= 6;
+	//}
+	//if (z > 0)
+	//{
+	//	// don't create front face
+	//	m_vertexCount -= 6;
+	//}
 
 	// Set the number of indices in the index array.
 	m_indexCount = m_vertexCount;
@@ -247,7 +247,7 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 	indices = new unsigned long[m_indexCount];
 
 	float size = 1.0f - border;
-	float nSize = size * m_Noise->scaleModifier;
+	float nSize = 0.5f * size * m_Noise->scaleModifier;
 	// Calculate height of the top face vertices for the cube
 	float height010 = GetHeight(x - nSize, z - nSize);
 	float height011 = GetHeight(x - nSize, z + nSize);
@@ -287,8 +287,8 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 	// Assign vertex positions to correct vertices
 	int i = 0;
 	XMFLOAT3 normal = front;
-	if (!(z > 0))
-	{
+	//if (!(z > 0))
+	//{
 		// Front
 		vertices[i].position = vertex000;
 		vertices[i].normal = normal;
@@ -320,9 +320,9 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 		vertices[i].texture = tx11;
 		indices[i] = i;
 		i++;
-	}
-	if (!(x < (xSegs - 1)))
-	{
+	//}
+	//if (!(x < (xSegs - 1)))
+	//{
 		// Right
 		normal = right;
 		vertices[i].position = vertex100;
@@ -355,9 +355,9 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 		vertices[i].texture = tx11;
 		indices[i] = i;
 		i++;
-	}
-	if (!(z < (zSegs - 1)))
-	{
+	//}
+	//if (!(z < (zSegs - 1)))
+	//{
 		// Back
 		normal = back;
 		vertices[i].position = vertex101;
@@ -390,9 +390,9 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 		vertices[i].texture = tx11;
 		indices[i] = i;
 		i++;
-	}
-	if (!(x > 0))
-	{
+	//}
+	//if (!(x > 0))
+	//{
 		// Left
 		normal = left;
 		vertices[i].position = vertex001;
@@ -425,7 +425,7 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 		vertices[i].texture = tx11;
 		indices[i] = i;
 		i++;
-	}
+//	}
 	// Top
 	//normal = up;
 	vertices[i].position = vertex010;

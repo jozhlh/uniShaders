@@ -88,7 +88,7 @@ void Region::GiveCell(Cell* m_Cell)
 	numOfCells++;
 }
 
-void Region::AssignMajorBuilding(Building * building, float cellSize)
+void Region::AssignMajorBuilding(Building * building, float cellSize, int zCells)
 {
 	centralBuilding = building;
 	//// Calculate building placement / rotation
@@ -163,6 +163,13 @@ void Region::AssignMajorBuilding(Building * building, float cellSize)
 	// new implementation
 
 	hasMajorBuilding = CheckBuildingPlacement(centralBuilding, centreOfRegion, cellSize);
+	if (centralBuilding->location.z < /*(zCells * 0.5f * cellSize)*/ 0)
+	{
+		if (centralBuilding->rotation < 1)
+		{
+			centralBuilding->rotation = XM_PI;
+		}
+	}
 	
 }
 
@@ -461,6 +468,7 @@ bool Region::CheckBuildingPlacement(Building* building, XMFLOAT3 centralCell, fl
 			canBePlaced = true;
 			building->location = centralCell;
 			building->rotation = XM_PIDIV2;
+			return true;
 		}
 		else
 		{

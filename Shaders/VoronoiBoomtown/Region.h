@@ -19,7 +19,7 @@ public:
 
 	void Init(ID3D11Device* device, ID3D11DeviceContext *deviceContext, int regionNum);
 	void GiveCell(Cell* m_Cell);
-	void AssignMajorBuilding(Building* building, float cellSize);
+	void AssignMajorBuilding(Building* building, float cellSize, int zCells);
 	void PlaceDerrick(Building* derrickModel, float cellSize);
 	void PlaceMinorAsset(Building* building, float cellSize);
 	void DifferentiateCells(float r);

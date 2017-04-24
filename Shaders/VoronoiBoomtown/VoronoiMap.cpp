@@ -4,9 +4,9 @@ VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 {
 	desertColour = XMFLOAT3(1.0f, 0.95f, 0.6f);
 	yPos = 0;
-	cellSize = 0.5f;
+	cellSize = 1.0f;
 	xCells = 60;
-	zCells = 25;
+	zCells = 60;
 	noise.Height = 2.0f;
 	noise.Resolution = 7.5f;
 	noise.Location = XMFLOAT2(1.0f, 1.0f);
@@ -38,7 +38,7 @@ VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 	for each (Region* region in regions)
 	{
 		//region->DifferentiateCells(r * .05f);
-		region->AssignMajorBuilding(&modelBank->majorBuildings[(int)r], cellSize);
+		region->AssignMajorBuilding(&modelBank->majorBuildings[(int)r], cellSize, zCells);
 		region->PlaceDerrick(&modelBank->minorBuildings[0], cellSize);
 		region->PlaceMinorAsset(&modelBank->minorBuildings[minorAssetSelection(mt)], cellSize);
 		for each (Region* assetRegion in regions)
