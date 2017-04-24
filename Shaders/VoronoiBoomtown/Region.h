@@ -4,6 +4,8 @@
 #include "Cell.h"
 #include "Building.h"
 #include <list>
+#include <cctype>
+#include <random>
 #include "../DXFramework/SphereMesh.h"
 
 
@@ -19,6 +21,7 @@ public:
 	void GiveCell(Cell* m_Cell);
 	void AssignMajorBuilding(Building* building, float cellSize);
 	void PlaceDerrick(Building* derrickModel, float cellSize);
+	void PlaceMinorAsset(Building* building, float cellSize);
 	void DifferentiateCells(float r);
 	void CalculateCentre(float cellArea);
 	
@@ -31,17 +34,22 @@ public:
 	int GetCellCount() const { return m_ChildCells.size(); }
 
 private:
-	bool CheckOrientation(XMFLOAT3 centre, int xIterator, int zIterator, float x, float z, float cellSize);
+	//bool CheckOrientation(XMFLOAT3 centre, int xIterator, int zIterator, float x, float z, float cellSize);
+	bool CheckBuildingPlacement(Building* building, XMFLOAT3 centralCell, float cellSize);
 	void RenderCentralBuilding(ID3D11DeviceContext * deviceContext, const XMMATRIX & world, const XMMATRIX & view, const XMMATRIX & projection,
 		SpecularLightShader * shader, Light * light, XMFLOAT3 cameraPosition, Texture* tex, bool tile, XMFLOAT3 tileColour);
 
+	vector<XMFLOAT3> GetBuildingCoordinates(float xDimension, float zDimension, XMFLOAT3 centralCell, float cellSize);
+
 	std::list<Cell*> m_ChildCells;
+	vector<Cell*> m_OccupiedCells;
+	std::list<Building> m_MinorAssets;
 	XMFLOAT2 nodeCoords;
 	XMFLOAT3 centreOfRegion;
 	SphereMesh* nodeSphere;
 	SphereMesh* centreSphere;
 	Building* centralBuilding;
-	Building* derrick;
+	Building derrick;
 	XMFLOAT3 buildingLocation;
 	float buildingRotation;
 	float sphereScale;

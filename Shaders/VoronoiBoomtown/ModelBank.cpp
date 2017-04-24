@@ -19,6 +19,12 @@ void ModelBank::Init(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 	majorBuildings[2].Init(new Model(device, deviceContext, L"../res/palette.png", L"../res/boomSaloon.obj"), 7, 3, 5, 0.05f, 2);
 	majorBuildings[3].Init(new Model(device, deviceContext, L"../res/palette.png", L"../res/boomGeneralStore.obj"), 7, 3, 5, 0.05f, 3);
 	majorBuildings[4].Init(new Model(device, deviceContext, L"../res/palette.png", L"../res/boomHotel.obj"), 5, 6, 5, 0.05f, 4);
+	majorBuildings[5].Init(new Model(device, deviceContext, L"../res/palette.png", L"../res/boomSilo.obj"), 8, 5, 5, 0.05f, 1);
+	majorBuildings[6].Init(new Model(device, deviceContext, L"../res/palette.png", L"../res/boomSilo.obj"), 8, 5, 5, 0.05f, 1);
+	majorBuildings[7].Init(new Model(device, deviceContext, L"../res/palette.png", L"../res/boomSilo.obj"), 8, 5, 5, 0.05f, 1);
+	majorBuildings[8].Init(new Model(device, deviceContext, L"../res/palette.png", L"../res/boomSilo.obj"), 8, 5, 5, 0.05f, 1);
+	majorBuildings[9].Init(new Model(device, deviceContext, L"../res/palette.png", L"../res/boomSilo.obj"), 8, 5, 5, 0.05f, 1);
+	majorBuildings[10].Init(new Model(device, deviceContext, L"../res/palette.png", L"../res/boomSilo.obj"), 8, 5, 5, 0.05f, 1);
 
 	/*for (int i = 0; i < MINOR_BUILDINGS; i++)
 	{

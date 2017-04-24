@@ -13,6 +13,8 @@ public:
 	~Cell();
 
 	bool CellContainsPoint(XMFLOAT3 point);
+	void SetOccupied(bool occupy) { occupied = occupy; }
+	bool IsOccupied() { return occupied; }
 	void SetTexture(string filename) {}
 	void SetCoordinates(float x, float y, float z) { position = XMFLOAT3(x, y, z); }
 	XMFLOAT3 GetCoordinates() { return position; }

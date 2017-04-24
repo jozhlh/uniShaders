@@ -17,7 +17,13 @@ VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 	stockTexture = new Texture(device, deviceContext, L"../res/palette.png");
 	GenerateRegions(MAJOR_BUILDINGS);
 	AssignCellsToRegions(device, deviceContext);
+
+	random_device rd;
+	mt19937 mt(rd());
+	uniform_int_distribution<int> minorAssetSelection(1, MINOR_BUILDINGS-1);
+
 	int iterator = 0;
+	//int r = 0.0;
 	for each (Region* region in regions)
 	{
 		region->Init(device, deviceContext, iterator);
@@ -28,12 +34,21 @@ VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 		//r++;
 	}
 	SortRegionsBySize();
-	float r = 0.0f;
+	int r = 0.0f;
 	for each (Region* region in regions)
 	{
 		//region->DifferentiateCells(r * .05f);
 		region->AssignMajorBuilding(&modelBank->majorBuildings[(int)r], cellSize);
 		region->PlaceDerrick(&modelBank->minorBuildings[0], cellSize);
+		region->PlaceMinorAsset(&modelBank->minorBuildings[minorAssetSelection(mt)], cellSize);
+		for each (Region* assetRegion in regions)
+		{
+			if (assetRegion == region)
+			{
+				break;
+			}
+			assetRegion->PlaceMinorAsset(&modelBank->minorBuildings[minorAssetSelection(mt)], cellSize);
+		}
 		r++;
 	}
 }
@@ -81,6 +96,7 @@ void VoronoiMap::Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &worl
 void VoronoiMap::GenerateRegions(int num)
 {
 	mapSize = xCells * cellSize;
+
 	// seed:rd() <- can set as an actual seed... this is a non-deterministic 32-bit seed
 	random_device rd;
 	mt19937 mt(rd());
