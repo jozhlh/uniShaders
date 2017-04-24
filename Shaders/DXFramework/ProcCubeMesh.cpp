@@ -80,12 +80,12 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 	// Calculate vertex positions of the cube
 	XMFLOAT3 vertex000 = XMFLOAT3(-size, -size, -size);
 	XMFLOAT3 vertex100 = XMFLOAT3(size, -size, -size);
-	XMFLOAT3 vertex010 = XMFLOAT3(-size, height010, -size);
-	XMFLOAT3 vertex110 = XMFLOAT3(size, height110, -size);
+	XMFLOAT3 vertex010 = XMFLOAT3(-size, height010 * m_Noise->Height, -size);
+	XMFLOAT3 vertex110 = XMFLOAT3(size, height110 * m_Noise->Height, -size);
 	XMFLOAT3 vertex001 = XMFLOAT3(-size, -size, size);
 	XMFLOAT3 vertex101 = XMFLOAT3(size, -size, size);
-	XMFLOAT3 vertex011 = XMFLOAT3(-size, height011, size);
-	XMFLOAT3 vertex111 = XMFLOAT3(size, height111, size);
+	XMFLOAT3 vertex011 = XMFLOAT3(-size, height011 * m_Noise->Height, size);
+	XMFLOAT3 vertex111 = XMFLOAT3(size, height111 * m_Noise->Height, size);
 
 	XMFLOAT3 up0 = Cross(Subtract(vertex011, vertex010), Subtract(vertex111, vertex011));
 	XMFLOAT3 up1 = Cross(Subtract(vertex111, vertex110), Subtract(vertex110, vertex010));

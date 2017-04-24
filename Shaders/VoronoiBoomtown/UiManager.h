@@ -3,8 +3,8 @@
 
 #include "../DXFramework/imgui-master\imgui.h"
 #include "../DXFramework/imgui-master\imgui_impl_dx11.h"
+#include "../DXFramework/baseapplication.h"
 
-#include "TessellationShader.h"
 #include <vector>
 
 #define MAX_REGIONS 11
@@ -36,9 +36,10 @@ public:
 	XMFLOAT3 basePlateColour;
 	XMFLOAT3 nodeColour;
 	XMFLOAT3 centreOfRegionColour;
-	vector<XMFLOAT3> regionColours;
+	XMFLOAT3 regionColour;
 	bool identifyRegions;
 	bool showNodes;
+	float yOffset;
 
 	// Algortihm Variables
 	XMINT2 gridDimensions;

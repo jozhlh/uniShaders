@@ -3,7 +3,7 @@
 UiManager::UiManager()
 {
 	// Initialise all UI variables
-	regionColours.push_back(XMFLOAT3(1.0f, 0.95f, 0.6f));
+	regionColour = XMFLOAT3(1.0f, 0.95f, 0.6f);
 	identifyRegions = false;
 
 	// Aesthetic Variables
@@ -17,12 +17,13 @@ UiManager::UiManager()
 	nodeColour = XMFLOAT3(0.7f, 0.98f, 1.0f);
 	centreOfRegionColour = XMFLOAT3(0.8f, 0.4f, 0.64f);
 	basePlateColour = XMFLOAT3(0.2f, 0.09, 0.06);
+	float yOffset = 0.5f;
 
 	// Algortihm Variables
 	gridDimensions = XMINT2 (30, 30);
 	cellSize = 1.0f;
 	noiseResolution = 7.5f;
-	noiseHeight = 0.3f;
+	noiseHeight = 0.6f;
 	cellBorder = 0.05f;
 	numberOfRegions = 10;
 	clumpingDistance = 2;
@@ -157,6 +158,8 @@ void UiManager::ShowUi(bool* p_open)
 			ImGui::Checkbox("Show Nodes", &showNodes);
 			if (showNodes)
 			{
+				ImGui::DragFloat("Node Offest", &yOffset, 0.01f, -0.5f, MAX_NOISE_HEIGHT, "%.1f");
+
 				float nodeCol[3] = { nodeColour.x, nodeColour.y, nodeColour.z };
 				float centCol[3] = { centreOfRegionColour.x, centreOfRegionColour.y, centreOfRegionColour.z };
 
@@ -167,59 +170,11 @@ void UiManager::ShowUi(bool* p_open)
 				centreOfRegionColour = XMFLOAT3(centCol[0], centCol[1], centCol[2]);
 			}
 
-			float regCol[3] = { regionColours[0].x, regionColours[0].y, regionColours[0].z };
+			float regCol[3] = { regionColour.x, regionColour.y, regionColour.z };
 			ImGui::ColorEdit3("Base Colour", regCol);
-			regionColours[0] = XMFLOAT3(regCol[0], regCol[1], regCol[2]);
+			regionColour = XMFLOAT3(regCol[0], regCol[1], regCol[2]);
 
 			ImGui::Checkbox("Identify Regions", &identifyRegions);
-		//	if (identifyRegions)
-		//	{
-		//		while (regionColours.size() < numberOfRegions)
-		//		{
-		//			regionColours.push_back(regionColours[0]);
-		//		}
-		//		while (regionColours.size() > numberOfRegions)
-		//		{
-		//			regionColours.pop_back();
-		//		}
-		//		/*for (int r = 1; r < regionColours.size(); r++)
-		//		{
-		//			float rCol[3] = { regionColours[r].x, regionColours[r].y, regionColours[r].z };
-		//			ImGui::ColorEdit3("Colour Of Region", rCol);
-		//			regionColours[r] = XMFLOAT3(rCol[0], rCol[1], rCol[2]);
-		//		}*/
-
-		//		vector<float> regCols;
-		//		for (int c = 0; c < regionColours.size(); c++)
-		//		{
-		//			regCols.push_back(regCol[0]);
-		//			regCols.push_back(regCol[1]);
-		//			regCols.push_back(regCol[2]);
-		//		}
-		//		int regionIterator = 1;
-		//		for (int r = 0; r < regionColours.size() * 3; r+=3)
-		//		{
-		//			regCols[r] = regionColours[r].x;
-		//			regCols[r + 1] = regionColours[r].y;
-		//			regCols[r + 2] = regionColours[r].z;
-
-		//			float rCol[3] = { regionColours[regionIterator].x, regionColours[regionIterator].y, regionColours[regionIterator].z };
-
-		//			ImGui::ColorEdit3("Colour Of Region", regCols[r]);
-
-		//			regCols[r] = rCol[0];
-		//			regCols[r + 1] = rCol[1];
-		//			regCols[r + 2] = rCol[2];
-		//			//regionColours[r] = XMFLOAT3(regCol[0], regCol[1], regCol[2]);
-		//			regionIterator++;
-		//		}
-		//		regionIterator = 1;
-		//		for (int r = 0; r < regionColours.size() * 3; r+=3)
-		//		{
-		//			regionColours[r] = XMFLOAT3(regCols[r], regCols[r+1], regCols[r+2]);
-		//			regionIterator++;
-		//		}
-		//	}
 
 			ImGui::TreePop();
 		}

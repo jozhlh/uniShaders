@@ -8,7 +8,7 @@ ModelBank::~ModelBank()
 {
 }
 
-void ModelBank::Init(ID3D11Device *device, ID3D11DeviceContext *deviceContext, int maxRegions)
+void ModelBank::Init(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 {
 
 	float modelSize = 0.1f;

@@ -91,7 +91,7 @@ void AppBoomtown::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int scre
 	m_Light->SetSpecularColour(m_UiManager->specularColour.x, m_UiManager->specularColour.y, m_UiManager->specularColour.z, m_UiManager->specularColour.w);
 
 	m_VoronoiMap = new VoronoiMap(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), m_ModelBank,
-		m_UiManager->gridDimensions, m_UiManager->cellBorder, m_UiManager->noiseHeight, m_UiManager->noiseResolution, m_UiManager->cellSize, m_UiManager->numberOfRegions, m_UiManager->regionColours[0]);
+		m_UiManager->gridDimensions, m_UiManager->cellBorder, m_UiManager->noiseHeight, m_UiManager->noiseResolution, m_UiManager->cellSize, m_UiManager->numberOfRegions, m_UiManager->regionColour);
 }
 
 AppBoomtown::~AppBoomtown()
@@ -220,7 +220,7 @@ bool AppBoomtown::Frame()
 			m_VoronoiMap = nullptr;
 		}
 		m_VoronoiMap = new VoronoiMap(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), m_ModelBank,
-			m_UiManager->gridDimensions, m_UiManager->cellBorder, m_UiManager->noiseHeight, m_UiManager->noiseResolution, m_UiManager->cellSize, m_UiManager->numberOfRegions, m_UiManager->regionColours[0]);
+			m_UiManager->gridDimensions, m_UiManager->cellBorder, m_UiManager->noiseHeight, m_UiManager->noiseResolution, m_UiManager->cellSize, m_UiManager->numberOfRegions, m_UiManager->regionColour);
 	}
 	if (m_UiManager->lightChanged)
 	{
@@ -288,7 +288,7 @@ bool AppBoomtown::RenderToTexture()
 	//worldMatrix = XMMatrixScaling(deScale, deScale, deScale) + XMMatrixTranslation(-m_UiManager->spherePosition.x, -m_UiManager->spherePosition.y, -m_UiManager->spherePosition.z);
 
 	m_VoronoiMap->Render(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_LightShader, m_TerrainShader, m_Light, m_Camera->GetPosition(), m_UiManager->nodeColour,
-		m_UiManager->centreOfRegionColour, m_UiManager->regionColours[0], m_UiManager->showNodes, m_UiManager->identifyRegions, m_UiManager->basePlateColour);
+		m_UiManager->centreOfRegionColour, m_UiManager->regionColour, m_UiManager->showNodes, m_UiManager->identifyRegions, m_UiManager->basePlateColour, m_UiManager->yOffset);
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	m_Direct3D->SetBackBufferRenderTarget();

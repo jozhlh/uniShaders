@@ -29,7 +29,7 @@ public:
 	//bool operator<(const Region* rightHandSide) const { return this->GetCellCount() > rightHandSide->GetCellCount(); }
 	void Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection,
 		SpecularLightShader* shader, Light* light, XMFLOAT3 cameraPosition, Texture* tex, XMFLOAT3 centreColour, XMFLOAT3 nodeColour,
-		bool showNodes);
+		bool showNodes, float yOff);
 
 	XMFLOAT2 GetNode() { return nodeCoords; }
 	void SetNodeCoordinates(float x, float z) { nodeCoords = XMFLOAT2(x, z); }
@@ -56,7 +56,7 @@ private:
 	XMFLOAT3 buildingLocation;
 	float buildingRotation;
 	float sphereScale;
-	float yOff;
+	//float yOff;
 	float buildingOffset;
 	int numOfCells;
 	int id;

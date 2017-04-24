@@ -1,6 +1,5 @@
 // Main.cpp
 #include "../DXFramework/System.h"
-#include "App1.h"
 #include "AppBoomtown.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)

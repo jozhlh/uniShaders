@@ -123,9 +123,6 @@
     <ClInclude Include="TessellationSphere.h">
       <Filter>Header Files\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="ProcMesh.h">
-      <Filter>Header Files\Geometry</Filter>
-    </ClInclude>
     <ClInclude Include="ProcCubeMesh.h">
       <Filter>Header Files\Geometry</Filter>
     </ClInclude>
@@ -216,9 +213,6 @@
       <Filter>Source Files\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="TessellationSphere.cpp">
-      <Filter>Source Files\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="ProcMesh.cpp">
       <Filter>Source Files\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="ProcCubeMesh.cpp">

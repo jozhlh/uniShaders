@@ -19,7 +19,7 @@ public:
 
 	void Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection,
 		SpecularLightShader* shader, SpecularTerrainShader* terrainShader, Light* light, XMFLOAT3 cameraPosition, XMFLOAT3 nodeColour, XMFLOAT3 centreColour, XMFLOAT3 regionColour,
-		bool showNodes, bool identifyRegions, XMFLOAT3 baseColour);
+		bool showNodes, bool identifyRegions, XMFLOAT3 baseColour, float yOff);
 
 private:
 	void GenerateRegions(int num);
@@ -37,7 +37,8 @@ private:
 	XMFLOAT3 basePlateColour;
 	int numOfRegions;
 	float cellSize;
-	float mapSize;
+	float xWidth;
+	float zWidth;
 	float yPos;
 	int xCells;
 	int zCells;

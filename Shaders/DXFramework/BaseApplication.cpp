@@ -52,7 +52,7 @@ void BaseApplication::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int 
 	// Create the camera object.
 	m_Camera = new Camera();
 	// Initialize a base view matrix with the camera for 2D user interface rendering.
-	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+	m_Camera->SetPosition(0.0f, 4.0f, -10.0f);
 	m_Camera->Update();
 
 	// Create the timer object.

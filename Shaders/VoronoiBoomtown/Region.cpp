@@ -38,7 +38,7 @@ void Region::Init(ID3D11Device * device, ID3D11DeviceContext * deviceContext, in
 	sphereScale = 0.2f;
 	numOfCells = 0;
 	id = regionNum;
-	yOff = 0.5f;
+	//yOff = 0.5f;
 	buildingOffset = -0.2f;
 	for each (Cell* cell in m_ChildCells)
 	{
@@ -363,7 +363,7 @@ vector<XMFLOAT3> Region::GetBuildingCoordinates(float xDimension, float zDimensi
 
 void Region::Render(ID3D11DeviceContext * deviceContext, const XMMATRIX & world, const XMMATRIX & view, const XMMATRIX & projection,
 	SpecularLightShader * shader, Light * light, XMFLOAT3 cameraPosition, Texture* tex, XMFLOAT3 centreColour, XMFLOAT3 nodeColour,
-	bool showNodes)
+	bool showNodes, float yOff)
 {
 	XMMATRIX worldMatrix = world;
 	

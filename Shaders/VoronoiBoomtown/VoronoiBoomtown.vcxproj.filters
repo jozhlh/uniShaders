@@ -18,16 +18,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="App1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HorizontalBlurShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TessellationShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextureShader.cpp">
@@ -65,13 +59,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="App1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="HorizontalBlurShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TessellationShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureShader.h">
@@ -115,34 +103,10 @@
     <FxCompile Include="shaders\horizontalBlur_vs.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\noise_ds.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\tessellation_ds.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\tessellation_hs.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\tessellation_noise_ds.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\tessellation_ps.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\tessellation_vs.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\tessellationDepth_ds.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="shaders\texture_ps.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\texture_vs.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\triangle_gs.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="shaders\verticalBlur_ps.hlsl">

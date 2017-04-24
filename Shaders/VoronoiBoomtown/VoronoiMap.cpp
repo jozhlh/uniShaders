@@ -96,7 +96,7 @@ VoronoiMap::~VoronoiMap()
 
 void VoronoiMap::Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection,
 	SpecularLightShader *shader, SpecularTerrainShader* terrainShader, Light *light, XMFLOAT3 cameraPosition, XMFLOAT3 nodeColour, XMFLOAT3 centreColour, XMFLOAT3 regionColour,
-	bool showNodes, bool identifyRegions, XMFLOAT3 baseColour)
+	bool showNodes, bool identifyRegions, XMFLOAT3 baseColour, float yOff)
 {
 	for each (Cell* cell in unassignedCells)
 	{
@@ -104,10 +104,10 @@ void VoronoiMap::Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &worl
 	}
 	for each (Region* region in regions)
 	{
-		region->Render(deviceContext, world, view, projection, shader, light, cameraPosition, stockTexture, centreColour, nodeColour, showNodes);
+		region->Render(deviceContext, world, view, projection, shader, light, cameraPosition, stockTexture, centreColour, nodeColour, showNodes, yOff);
 	}
 
-	XMMATRIX worldMatrix = XMMatrixMultiply(XMMatrixScaling((cellSize * 0.5f * xCells) + 0.2f, 0.25f, (cellSize * 0.5f * zCells) + 0.2f), XMMatrixTranslation(0, -0.6f, 0));
+	XMMATRIX worldMatrix = XMMatrixMultiply(XMMatrixScaling((cellSize * 0.5f * xCells) + 0.2f, 0.25f, (cellSize * 0.5f * zCells) + 0.2f), XMMatrixTranslation(0, -0.75f, 0));
 	
 	//// Send geometry data (from mesh)
 	basePlate->SendData(deviceContext);
@@ -119,7 +119,8 @@ void VoronoiMap::Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &worl
 
 void VoronoiMap::GenerateRegions(int num)
 {
-	mapSize = xCells * cellSize;
+	xWidth = xCells * cellSize;
+	zWidth = zCells * cellSize;
 
 	// seed:rd() <- can set as an actual seed... this is a non-deterministic 32-bit seed
 	random_device rd;
@@ -130,7 +131,7 @@ void VoronoiMap::GenerateRegions(int num)
 		uniform_int_distribution<int> xDist(1, (xCells *cellSize) - 1);
 		uniform_int_distribution<int> zDist(1, (zCells *cellSize) - 1);
 		Region* m_Region = new Region();
-		m_Region->SetNodeCoordinates(xDist(mt)-(0.5* mapSize), zDist(mt) - (0.5* mapSize));
+		m_Region->SetNodeCoordinates(xDist(mt)-(0.5* xWidth), zDist(mt) - (0.5* zWidth));
 		regions.push_back(m_Region);
 	}
 }
@@ -143,7 +144,7 @@ void VoronoiMap::AssignCellsToRegions(ID3D11Device *device, ID3D11DeviceContext 
 		for (int z = 0; z < zCells; z++)
 		{
 			Cell* m_Cell = new Cell(device, deviceContext, x, z, xCells, zCells, &noise, cellSize, cellBorder, noiseEngine);;
-			m_Cell->SetCoordinates((mapSize * -0.5) + ((cellSize*0.5f) + (x*cellSize)), yPos, (mapSize * -0.5) + ((cellSize*0.5f) + (z*cellSize)));
+			m_Cell->SetCoordinates((xWidth * -0.5) + ((cellSize*0.5f) + (x*cellSize)), yPos, (zWidth * -0.5) + ((cellSize*0.5f) + (z*cellSize)));
 			unassignedCells.push_back(m_Cell);
 		}
 	}

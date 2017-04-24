@@ -4,8 +4,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-#define SCREEN_WIDTH 1366
-#define SCREEN_HEIGHT 768
+#define SCREEN_WIDTH 1920 //1366
+#define SCREEN_HEIGHT 1080 //768
 
 // INCLUDES 
 #include <windows.h>
@@ -34,7 +34,6 @@ private:
 	LPCWSTR m_applicationName;
 	HINSTANCE m_hinstance;
 	HWND m_hwnd;
-	//Application* m_Application;
 	BaseApplication* m_Application;
 	Input m_Input;
 
