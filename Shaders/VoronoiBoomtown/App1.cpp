@@ -70,7 +70,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	m_OrthoMesh = new OrthoMesh(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 0, 0);
 
 	// Initialise sphere animation
-	sphereLerp = m_UiManager->animationSpeed;
+	//sphereLerp = m_UiManager->animationSpeed;
 }
 
 App1::~App1()
@@ -169,38 +169,38 @@ bool App1::Frame()
 
 	if (!result) return false;
 
-	// Get animation position from UI
-	sphereLerp = m_UiManager->tessellationWarp.lerpAmount * ANIM_CAP;
+	//// Get animation position from UI
+	//sphereLerp = m_UiManager->tessellationWarp.lerpAmount * ANIM_CAP;
 
-	// If the sphere is being animated
-	if (m_UiManager->playAnimation)
-	{
-		// Choose which direction the animation is going
-		if (m_UiManager->tessellationWarp.targetSin)
-		{
-			if (sphereLerp < ANIM_CAP)
-			{
-				sphereLerp += (dt * m_UiManager->animationSpeed);
-			}
-			else if (m_UiManager->playAnimation)
-			{
-				m_UiManager->tessellationWarp.targetSin = false;
-			}
-		}
-		else
-		{
-			if (sphereLerp > 0.0f)
-			{
-				sphereLerp -= (dt * m_UiManager->animationSpeed);
-			}
-			else if (m_UiManager->playAnimation)
-			{
-				m_UiManager->tessellationWarp.targetSin = true;
-			}
-		}
-	}
-	// Lerp between surface modifiers
-	m_UiManager->tessellationWarp.lerpAmount = sphereLerp / ANIM_CAP;
+	//// If the sphere is being animated
+	//if (m_UiManager->playAnimation)
+	//{
+	//	// Choose which direction the animation is going
+	//	if (m_UiManager->tessellationWarp.targetSin)
+	//	{
+	//		if (sphereLerp < ANIM_CAP)
+	//		{
+	//			sphereLerp += (dt * m_UiManager->animationSpeed);
+	//		}
+	//		else if (m_UiManager->playAnimation)
+	//		{
+	//			m_UiManager->tessellationWarp.targetSin = false;
+	//		}
+	//	}
+	//	else
+	//	{
+	//		if (sphereLerp > 0.0f)
+	//		{
+	//			sphereLerp -= (dt * m_UiManager->animationSpeed);
+	//		}
+	//		else if (m_UiManager->playAnimation)
+	//		{
+	//			m_UiManager->tessellationWarp.targetSin = true;
+	//		}
+	//	}
+	//}
+	//// Lerp between surface modifiers
+	//m_UiManager->tessellationWarp.lerpAmount = sphereLerp / ANIM_CAP;
 
 	// Display UI window
 	bool show_test_window = true;
@@ -339,19 +339,19 @@ bool App1::RenderToTexture()
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	// Translate sphere mesh
-	worldMatrix = XMMatrixScaling(m_UiManager->sphereSize, m_UiManager->sphereSize, m_UiManager->sphereSize) + XMMatrixTranslation(m_UiManager->spherePosition.x, m_UiManager->spherePosition.y, m_UiManager->spherePosition.z);
-	//// Send geometry data (from mesh)
-	m_SphereMesh->SendData(m_Direct3D->GetDeviceContext());
-	//// Set shader parameters (matrices and texture)
-	m_TessellationShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_SphereMesh->GetTexture(),
-		m_UiManager->tessellationSetup, m_UiManager->tessellationWarp, m_UiManager->explode);
-	//// Render object (combination of mesh geometry and shader process
-	m_TessellationShader->Render(m_Direct3D->GetDeviceContext(), m_SphereMesh->GetIndexCount());
-	// Reset world matrix
-	float deScale = 1.0f;
-	if (deScale > 0) deScale = 1.0f / m_UiManager->sphereSize;
-	worldMatrix = XMMatrixScaling(deScale, deScale, deScale) + XMMatrixTranslation(-m_UiManager->spherePosition.x, -m_UiManager->spherePosition.y, -m_UiManager->spherePosition.z);
+	//// Translate sphere mesh
+	//worldMatrix = XMMatrixScaling(m_UiManager->sphereSize, m_UiManager->sphereSize, m_UiManager->sphereSize) + XMMatrixTranslation(m_UiManager->spherePosition.x, m_UiManager->spherePosition.y, m_UiManager->spherePosition.z);
+	////// Send geometry data (from mesh)
+	//m_SphereMesh->SendData(m_Direct3D->GetDeviceContext());
+	////// Set shader parameters (matrices and texture)
+	//m_TessellationShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_SphereMesh->GetTexture(),
+	//	m_UiManager->tessellationSetup, m_UiManager->tessellationWarp, m_UiManager->explode);
+	////// Render object (combination of mesh geometry and shader process
+	//m_TessellationShader->Render(m_Direct3D->GetDeviceContext(), m_SphereMesh->GetIndexCount());
+	//// Reset world matrix
+	//float deScale = 1.0f;
+	//if (deScale > 0) deScale = 1.0f / m_UiManager->sphereSize;
+	//worldMatrix = XMMatrixScaling(deScale, deScale, deScale) + XMMatrixTranslation(-m_UiManager->spherePosition.x, -m_UiManager->spherePosition.y, -m_UiManager->spherePosition.z);
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	m_Direct3D->SetBackBufferRenderTarget();

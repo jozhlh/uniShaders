@@ -18,7 +18,7 @@ class ProcCubeMesh : public BaseMesh
 {
 
 public:
-	ProcCubeMesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, WCHAR* textureFilename, int cellX, int cellZ, int xSegments, int zSegments, NoiseData* noise, ImprovedNoise* noiseEngine);
+	ProcCubeMesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, WCHAR* textureFilename, int cellX, int cellZ, int xSegments, int zSegments, float gap, NoiseData* noise, ImprovedNoise* noiseEngine);
 	~ProcCubeMesh();
 
 protected:
@@ -29,6 +29,7 @@ protected:
 	NoiseData* m_Noise;
 	ImprovedNoise* perlin;
 	int x, z, xSegs, zSegs;
+	float border;
 };
 
 #endif

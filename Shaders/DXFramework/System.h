@@ -4,8 +4,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 1366
+#define SCREEN_HEIGHT 768
 
 // INCLUDES 
 #include <windows.h>

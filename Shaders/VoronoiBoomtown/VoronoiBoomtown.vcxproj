@@ -125,6 +125,7 @@
     <ClCompile Include="ModelBank.cpp" />
     <ClCompile Include="Region.cpp" />
     <ClCompile Include="SpecularLightShader.cpp" />
+    <ClCompile Include="SpecularTerrainShader.cpp" />
     <ClCompile Include="TessellationShader.cpp" />
     <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="UiManager.cpp" />
@@ -146,6 +147,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SpecularLightShader.h" />
+    <ClInclude Include="SpecularTerrainShader.h" />
     <ClInclude Include="TessellationShader.h" />
     <ClInclude Include="TextureShader.h" />
     <ClInclude Include="UiManager.h" />
@@ -168,6 +170,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\noise_ds.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaders\terrain_ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shaders\tessellationDepth_ds.hlsl">

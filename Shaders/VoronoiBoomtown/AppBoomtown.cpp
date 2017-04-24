@@ -17,6 +17,7 @@ AppBoomtown::AppBoomtown()
 
 	// Shader Controllers
 	m_LightShader = nullptr;
+	m_TerrainShader = nullptr;
 	m_TextureShader = nullptr;
 	m_HorizontalBlurShader = nullptr;
 	m_VerticalBlurShader = nullptr;
@@ -61,6 +62,7 @@ void AppBoomtown::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int scre
 
 	// Create Shader Objects
 	m_LightShader = new SpecularLightShader(m_Direct3D->GetDevice(), hwnd);
+	m_TerrainShader = new SpecularTerrainShader(m_Direct3D->GetDevice(), hwnd);
 	m_VerticalBlurShader = new VerticalBlurShader(m_Direct3D->GetDevice(), hwnd);
 	m_HorizontalBlurShader = new HorizontalBlurShader(m_Direct3D->GetDevice(), hwnd);
 	m_TextureShader = new TextureShader(m_Direct3D->GetDevice(), hwnd);
@@ -75,22 +77,21 @@ void AppBoomtown::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int scre
 	// Create Light object
 	m_Light = new Light;
 
+	m_ModelBank = new ModelBank();
 
 	// Initialise light properties
-	m_Light->SetAmbientColour(0.5f, 0.5f, 0.5f, 1.0f);
+	m_Light->SetAmbientColour(m_UiManager->ambientColour.x, m_UiManager->ambientColour.y, m_UiManager->ambientColour.z, m_UiManager->ambientColour.w);
 
-	m_Light->SetDiffuseColour(0.9f, 0.8f, 0.3f, 1.0f);
+	m_Light->SetDiffuseColour(m_UiManager->diffuseColour.x, m_UiManager->diffuseColour.y, m_UiManager->diffuseColour.z, m_UiManager->diffuseColour.w);
 
-	m_Light->SetDirection(0.5f, -0.5f, 0.0f);
+	m_Light->SetDirection(m_UiManager->direction.x, m_UiManager->direction.y, m_UiManager->direction.z);
 
-	m_Light->SetSpecularPower(50.0f);
+	m_Light->SetSpecularPower(m_UiManager->specularPower);
 
-	m_Light->SetSpecularColour(1.0f, 1.0f, 6.0f, 1.0f);
+	m_Light->SetSpecularColour(m_UiManager->specularColour.x, m_UiManager->specularColour.y, m_UiManager->specularColour.z, m_UiManager->specularColour.w);
 
-	m_VoronoiMap = new VoronoiMap(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext());
-
-	// Initialise sphere animation
-	sphereLerp = m_UiManager->animationSpeed;
+	m_VoronoiMap = new VoronoiMap(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), m_ModelBank,
+		m_UiManager->gridDimensions, m_UiManager->cellBorder, m_UiManager->noiseHeight, m_UiManager->noiseResolution, m_UiManager->cellSize, m_UiManager->numberOfRegions, m_UiManager->regionColours[0]);
 }
 
 AppBoomtown::~AppBoomtown()
@@ -142,6 +143,11 @@ AppBoomtown::~AppBoomtown()
 		delete m_LightShader;
 		m_LightShader = 0;
 	}
+	if (m_TerrainShader)
+	{
+		delete m_TerrainShader;
+		m_TerrainShader = 0;
+	}
 	if (m_TextureShader)
 	{
 		delete m_TextureShader;
@@ -183,6 +189,12 @@ AppBoomtown::~AppBoomtown()
 		delete m_VoronoiMap;
 		m_VoronoiMap = 0;
 	}
+
+	if (m_ModelBank)
+	{
+		delete m_ModelBank;
+		m_ModelBank = 0;
+	}
 }
 
 
@@ -198,38 +210,27 @@ bool AppBoomtown::Frame()
 
 	if (!result) return false;
 
-	//// Get animation position from UI
-	//sphereLerp = m_UiManager->tessellationWarp.lerpAmount * ANIM_CAP;
-
-	//// If the sphere is being animated
-	//if (m_UiManager->playAnimation)
-	//{
-	//	// Choose which direction the animation is going
-	//	if (m_UiManager->tessellationWarp.targetSin)
-	//	{
-	//		if (sphereLerp < ANIM_CAP)
-	//		{
-	//			sphereLerp += (dt * m_UiManager->animationSpeed);
-	//		}
-	//		else if (m_UiManager->playAnimation)
-	//		{
-	//			m_UiManager->tessellationWarp.targetSin = false;
-	//		}
-	//	}
-	//	else
-	//	{
-	//		if (sphereLerp > 0.0f)
-	//		{
-	//			sphereLerp -= (dt * m_UiManager->animationSpeed);
-	//		}
-	//		else if (m_UiManager->playAnimation)
-	//		{
-	//			m_UiManager->tessellationWarp.targetSin = true;
-	//		}
-	//	}
-	//}
-	// Lerp between surface modifiers
-	//m_UiManager->tessellationWarp.lerpAmount = sphereLerp / ANIM_CAP;
+	if (m_UiManager->generate)
+	{
+		m_UiManager->generate = false;
+		// Release the Voronoi Map object
+		if (m_VoronoiMap)
+		{
+			delete m_VoronoiMap;
+			m_VoronoiMap = nullptr;
+		}
+		m_VoronoiMap = new VoronoiMap(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), m_ModelBank,
+			m_UiManager->gridDimensions, m_UiManager->cellBorder, m_UiManager->noiseHeight, m_UiManager->noiseResolution, m_UiManager->cellSize, m_UiManager->numberOfRegions, m_UiManager->regionColours[0]);
+	}
+	if (m_UiManager->lightChanged)
+	{
+		m_UiManager->lightChanged = false;
+		m_Light->SetAmbientColour(m_UiManager->ambientColour.x, m_UiManager->ambientColour.y, m_UiManager->ambientColour.z, m_UiManager->ambientColour.w);
+		m_Light->SetDiffuseColour(m_UiManager->diffuseColour.x, m_UiManager->diffuseColour.y, m_UiManager->diffuseColour.z, m_UiManager->diffuseColour.w);
+		m_Light->SetDirection(m_UiManager->direction.x, m_UiManager->direction.y, m_UiManager->direction.z);
+		m_Light->SetSpecularPower(m_UiManager->specularPower);
+		m_Light->SetSpecularColour(m_UiManager->specularColour.x, m_UiManager->specularColour.y, m_UiManager->specularColour.z, m_UiManager->specularColour.w);
+	}
 
 	// Display UI window
 	bool show_test_window = true;
@@ -286,7 +287,8 @@ bool AppBoomtown::RenderToTexture()
 	//if (deScale > 0) deScale = 1.0f / m_UiManager->sphereSize;
 	//worldMatrix = XMMatrixScaling(deScale, deScale, deScale) + XMMatrixTranslation(-m_UiManager->spherePosition.x, -m_UiManager->spherePosition.y, -m_UiManager->spherePosition.z);
 
-	m_VoronoiMap->Render(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_LightShader, m_Light, m_Camera->GetPosition());
+	m_VoronoiMap->Render(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_LightShader, m_TerrainShader, m_Light, m_Camera->GetPosition(), m_UiManager->nodeColour,
+		m_UiManager->centreOfRegionColour, m_UiManager->regionColours[0], m_UiManager->showNodes, m_UiManager->identifyRegions, m_UiManager->basePlateColour);
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	m_Direct3D->SetBackBufferRenderTarget();

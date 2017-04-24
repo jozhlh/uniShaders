@@ -3,13 +3,13 @@
 
 #include "../DXFramework/CubeMesh.h"
 #include "../DXFramework/ProcCubeMesh.h"
-#include "SpecularLightShader.h"
+#include "SpecularTerrainShader.h"
 
 
 class Cell
 {
 public:
-	Cell(ID3D11Device *device, ID3D11DeviceContext *deviceContext, int cellX, int cellZ, int xSegments, int zSegments, NoiseData* noise, float size, ImprovedNoise* noiseEngine);
+	Cell(ID3D11Device *device, ID3D11DeviceContext *deviceContext, int cellX, int cellZ, int xSegments, int zSegments, NoiseData* noise, float size, float border, ImprovedNoise* noiseEngine);
 	~Cell();
 
 	bool CellContainsPoint(XMFLOAT3 point);
@@ -21,15 +21,12 @@ public:
 	float GetScale() { return scale; }
 	void SetParent(int regionID) { parentRegion = regionID; }
 	void Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection,
-		SpecularLightShader* shader, Light* light, XMFLOAT3 cameraPosition, Texture* tex, bool tile, XMFLOAT3 tileColour);
-	bool altTexture;
+		SpecularTerrainShader* shader, Light* light, XMFLOAT3 cameraPosition, Texture* tex, XMFLOAT3 terrainBaseColor, bool identify, int numOfRegions);
 
 private:
 	float scale;
 	XMFLOAT3 position;
 	ProcCubeMesh* m_SurfaceModel;
-	ProcCubeMesh* m_AltSurfaceModel;
-	//CubeMesh* fallbackMesh;
 	int parentRegion;
 	bool occupied;
 	

@@ -3,6 +3,7 @@
 
 #include "Cell.h"
 #include "Building.h"
+#include "SpecularLightShader.h"
 #include <list>
 #include <cctype>
 #include <random>
@@ -27,11 +28,13 @@ public:
 	
 	//bool operator<(const Region* rightHandSide) const { return this->GetCellCount() > rightHandSide->GetCellCount(); }
 	void Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection,
-		SpecularLightShader* shader, Light* light, XMFLOAT3 cameraPosition, Texture* tex, bool tile, XMFLOAT3 tileColour);
+		SpecularLightShader* shader, Light* light, XMFLOAT3 cameraPosition, Texture* tex, XMFLOAT3 centreColour, XMFLOAT3 nodeColour,
+		bool showNodes);
 
 	XMFLOAT2 GetNode() { return nodeCoords; }
 	void SetNodeCoordinates(float x, float z) { nodeCoords = XMFLOAT2(x, z); }
 	int GetCellCount() const { return m_ChildCells.size(); }
+	void SetCellIDs(int order);
 
 private:
 	//bool CheckOrientation(XMFLOAT3 centre, int xIterator, int zIterator, float x, float z, float cellSize);
@@ -54,6 +57,7 @@ private:
 	float buildingRotation;
 	float sphereScale;
 	float yOff;
+	float buildingOffset;
 	int numOfCells;
 	int id;
 	bool hasMajorBuilding;

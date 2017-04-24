@@ -3,29 +3,36 @@
 UiManager::UiManager()
 {
 	// Initialise all UI variables
-	tessellationSetup.edgeSplitting = XMINT3(3, 3, 3);
-	tessellationSetup.innerSplitting = 15;
+	regionColours.push_back(XMFLOAT3(1.0f, 0.95f, 0.6f));
+	identifyRegions = false;
 
-	tessellationWarp.baseColour = XMFLOAT3(0.4f, 1.0f, 0.3f);
-	tessellationWarp.powers = 4;
-	tessellationWarp.repeats = 10.0f;
-	tessellationWarp.severity = 5.0f;
-	tessellationWarp.lerpAmount = 1.0f;
-	tessellationWarp.targetSin = true;
+	// Aesthetic Variables
+	ambientColour = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	diffuseColour = XMFLOAT4(0.9f, 0.8f, 0.3f, 1.0f);
+	direction = XMFLOAT3(0.5f, -0.5f, 0.0f);
+	specularColour = XMFLOAT4(1.0f, 1.0f, 0.6f, 1.0f);
+	specularPower = 50.0f;
+	lightChanged = false;
+	showNodes = false;
+	nodeColour = XMFLOAT3(0.7f, 0.98f, 1.0f);
+	centreOfRegionColour = XMFLOAT3(0.8f, 0.4f, 0.64f);
+	basePlateColour = XMFLOAT3(0.2f, 0.09, 0.06);
 
-	playAnimation = true;
-	animationSpeed = 10.0f;
-	frameRate = 0.0f;
-	sphereSize = 0.01f;
-	spherePosition = XMFLOAT3(0.0f, 0.0f, 30.0f);
+	// Algortihm Variables
+	gridDimensions = XMINT2 (30, 30);
+	cellSize = 1.0f;
+	noiseResolution = 7.5f;
+	noiseHeight = 0.3f;
+	cellBorder = 0.05f;
+	numberOfRegions = 10;
+	clumpingDistance = 2;
+	generate = false;
 
+	// Blur Variables
 	blurLoops = 0;
 	blurWeightings.x = 0.4062f;
 	blurWeightings.y = 0.2442f;
 	blurWeightings.z = 0.0545f;
-
-	explode = 0.0f;
-
 }
 
 UiManager::~UiManager()
@@ -51,7 +58,7 @@ void UiManager::ShowUi(bool* p_open)
 {
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiSetCond_FirstUseEver);
-	if (!ImGui::Begin("Shader Coursework UI", p_open, window_flags))
+	if (!ImGui::Begin("Voronoi Boomtown Controls", p_open, window_flags))
 	{
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
@@ -69,79 +76,153 @@ void UiManager::ShowUi(bool* p_open)
 	ImGui::Spacing();
 
 	///
-	// Tessellation Controls
+	// Algorithm Variables
 	///
 
-	if (ImGui::CollapsingHeader("Tessellation"))
+	if (ImGui::CollapsingHeader("Procedural Generation"))
 	{
-		if (ImGui::TreeNode("Sphere Mesh"))
+		if (ImGui::TreeNode("Voronoi Algorithm"))
 		{
-			ImGui::DragFloat("Size of Base Mesh", &sphereSize, 0.0001f, 0.0001f, 0.5f, "%.05f ns");
-			if (ImGui::TreeNode("Position of Sphere"))
-			{
-				ImGui::DragFloat("X Position", &spherePosition.x, 1.0f, -200.f, 200.f, "%.5f ns");
-				ImGui::DragFloat("Y Position", &spherePosition.y, 1.0f, -200.f, 200.f, "%.5f ns");
-				ImGui::DragFloat("Z Position", &spherePosition.z, 1.0f, -200.f, 200.f, "%.5f ns");
-				
-				ImGui::TreePop();
-			}
+			ImGui::DragInt("Grid X Dimensions", &gridDimensions.x, 0.1, 1, MAX_CELLS);
+			ImGui::DragInt("Grid Z Dimensions", &gridDimensions.y, 0.1, 1, MAX_CELLS);
+			ImGui::DragFloat("Cell Size", &cellSize, 0.01f, 0.01f, MAX_CELL_SIZE, "%.1f ns");
+			ImGui::DragFloat("Border Size", &cellBorder, 0.01f, 0.01f, cellSize * 0.5f, "%.1f ns");
+			ImGui::DragInt("Number Of Regions", &numberOfRegions, 0.1, 1, MAX_REGIONS);
 			ImGui::TreePop();
 		}
-
-		if (ImGui::TreeNode("Amount of Tessellation"))
+		if (ImGui::TreeNode("Improved Noise Terrain"))
 		{
-			ImGui::DragInt("Edge Subdivisions", &tessellationSetup.edgeSplitting.x, 0.1, 1, 50);
-			ImGui::DragInt("Inner Subdivisions", &tessellationSetup.innerSplitting, 0.1, 0, 100);
-			
-			tessellationSetup.edgeSplitting.y = tessellationSetup.edgeSplitting.x;
-			tessellationSetup.edgeSplitting.z = tessellationSetup.edgeSplitting.x;
-
+			ImGui::DragFloat("Noise Resolution", &noiseResolution, 0.1f, 0.01f, MAX_NOISE_RESOLUTION, "%.1f ns");
+			ImGui::DragFloat("Noise Height", &noiseHeight, 0.01f, 0.01f, MAX_NOISE_HEIGHT, "%.01f ns");
 			ImGui::TreePop();
 		}
-
-		if (ImGui::TreeNode("Tessellation Warping"))
+		if (ImGui::TreeNode("Asset Placement Clumping"))
 		{
-			if (ImGui::TreeNode("Surface Warping"))
-			{
-				ImGui::DragInt("To What Order is The Algorithm", &tessellationWarp.powers, 0.5, 1, 50);
-				ImGui::DragFloat("Frequency", &tessellationWarp.repeats, 0.1, 1, 100);
-				ImGui::DragFloat("Intensity", &tessellationWarp.severity, 0.1, 1, 100);
-
-				ImGui::TreePop();
-			}
-
-			if (ImGui::TreeNode("Colour"))
-			{
-				float baseCol[3] = { tessellationWarp.baseColour.x, tessellationWarp.baseColour.y, tessellationWarp.baseColour.z };
-
-				ImGui::ColorEdit3("Base Colour (will be inverted)", baseCol);
-				ImGui::SameLine(); ShowHelpMarker("Click on the colored square to change edit mode.\nCTRL+click on individual component to input value.\n");
-
-				tessellationWarp.baseColour = XMFLOAT3(baseCol[0], baseCol[1], baseCol[2]);
-
-				ImGui::TreePop();
-			}
-
-			if (ImGui::TreeNode("Animation"))
-			{
-				ImGui::Checkbox("Play Animation", &playAnimation);
-				ImGui::DragFloat("Lerp Between Cos Surface and Sin Surface", &tessellationWarp.lerpAmount, 0.01, 0.0f, 1.0f, "%.06f ns");
-				ImGui::DragFloat("Animation Speed", &animationSpeed, 0.1, 1, 100);
-
-				ImGui::TreePop();
-			}
+			ImGui::DragInt("Clumping Distance", &clumpingDistance, 0.01, 1, MAX_CELLS);
 			ImGui::TreePop();
 		}
-
+		ImGui::Checkbox("Generate", &generate);
 	}
 
 	///
-	// Geometry Controls
+	// Aesthetic Variables
 	///
 
-	if (ImGui::CollapsingHeader("Geometry (Explode))"))
+	if (ImGui::CollapsingHeader("Visuals"))
 	{
-		ImGui::DragFloat("Amount to explode", &explode, 0.1f, 0.0f, 40.0f);
+		if (ImGui::TreeNode("Light"))
+		{
+			float ambCol[4] = { ambientColour.x, ambientColour.y, ambientColour.z, ambientColour.w };
+			float difCol[4] = { diffuseColour.x, diffuseColour.y, diffuseColour.z, diffuseColour.w };
+			float speCol[4] = { specularColour.x, specularColour.y, specularColour.z, specularColour.w };
+			float dir[3] = { direction.x, direction.y, direction.z };
+
+			if (ImGui::ColorEdit4("Ambient Colour", ambCol))
+			{
+				lightChanged = true;
+			}
+			ImGui::SameLine(); ShowHelpMarker("Click on the colored square to change edit mode.\nCTRL+click on individual component to input value.\n");
+			if(ImGui::ColorEdit4("Diffuse Colour", difCol))
+			{
+				lightChanged = true;
+			}
+			if(ImGui::SliderFloat3("Diffuse Direction", dir, -1.0f, 1.0f, "%.1f"))
+			{
+				lightChanged = true;
+			}
+			if(ImGui::ColorEdit4("Specular Colour", speCol))
+			{
+				lightChanged = true;
+			}
+			if (ImGui::DragFloat("SpecularPower", &specularPower, 0.1f, 0.0f, MAX_SPECULARITY, "%.5f ns"))
+			{
+				lightChanged = true;
+			}
+			
+			ambientColour = XMFLOAT4(ambCol[0], ambCol[1], ambCol[2], ambCol[3]);
+			diffuseColour = XMFLOAT4(difCol[0], difCol[1], difCol[2], difCol[3]);
+			specularColour = XMFLOAT4(speCol[0], speCol[1], speCol[2], speCol[3]);
+				
+			direction = XMFLOAT3(dir[0], dir[1], dir[2]);
+			// need to normalise direction
+
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Region Visualisation"))
+		{
+			float bCol[3] = { basePlateColour.x, basePlateColour.y, basePlateColour.z };
+			ImGui::ColorEdit3("Base Plate Colour", bCol);
+			basePlateColour = XMFLOAT3(bCol[0], bCol[1], bCol[2]);
+
+			ImGui::Checkbox("Show Nodes", &showNodes);
+			if (showNodes)
+			{
+				float nodeCol[3] = { nodeColour.x, nodeColour.y, nodeColour.z };
+				float centCol[3] = { centreOfRegionColour.x, centreOfRegionColour.y, centreOfRegionColour.z };
+
+				ImGui::ColorEdit3("Voronoi Node Colour", nodeCol);
+				ImGui::ColorEdit3("Region Centre Colour", centCol);
+
+				nodeColour = XMFLOAT3(nodeCol[0], nodeCol[1], nodeCol[2]);
+				centreOfRegionColour = XMFLOAT3(centCol[0], centCol[1], centCol[2]);
+			}
+
+			float regCol[3] = { regionColours[0].x, regionColours[0].y, regionColours[0].z };
+			ImGui::ColorEdit3("Base Colour", regCol);
+			regionColours[0] = XMFLOAT3(regCol[0], regCol[1], regCol[2]);
+
+			ImGui::Checkbox("Identify Regions", &identifyRegions);
+		//	if (identifyRegions)
+		//	{
+		//		while (regionColours.size() < numberOfRegions)
+		//		{
+		//			regionColours.push_back(regionColours[0]);
+		//		}
+		//		while (regionColours.size() > numberOfRegions)
+		//		{
+		//			regionColours.pop_back();
+		//		}
+		//		/*for (int r = 1; r < regionColours.size(); r++)
+		//		{
+		//			float rCol[3] = { regionColours[r].x, regionColours[r].y, regionColours[r].z };
+		//			ImGui::ColorEdit3("Colour Of Region", rCol);
+		//			regionColours[r] = XMFLOAT3(rCol[0], rCol[1], rCol[2]);
+		//		}*/
+
+		//		vector<float> regCols;
+		//		for (int c = 0; c < regionColours.size(); c++)
+		//		{
+		//			regCols.push_back(regCol[0]);
+		//			regCols.push_back(regCol[1]);
+		//			regCols.push_back(regCol[2]);
+		//		}
+		//		int regionIterator = 1;
+		//		for (int r = 0; r < regionColours.size() * 3; r+=3)
+		//		{
+		//			regCols[r] = regionColours[r].x;
+		//			regCols[r + 1] = regionColours[r].y;
+		//			regCols[r + 2] = regionColours[r].z;
+
+		//			float rCol[3] = { regionColours[regionIterator].x, regionColours[regionIterator].y, regionColours[regionIterator].z };
+
+		//			ImGui::ColorEdit3("Colour Of Region", regCols[r]);
+
+		//			regCols[r] = rCol[0];
+		//			regCols[r + 1] = rCol[1];
+		//			regCols[r + 2] = rCol[2];
+		//			//regionColours[r] = XMFLOAT3(regCol[0], regCol[1], regCol[2]);
+		//			regionIterator++;
+		//		}
+		//		regionIterator = 1;
+		//		for (int r = 0; r < regionColours.size() * 3; r+=3)
+		//		{
+		//			regionColours[r] = XMFLOAT3(regCols[r], regCols[r+1], regCols[r+2]);
+		//			regionIterator++;
+		//		}
+		//	}
+
+			ImGui::TreePop();
+		}
 	}
 
 	///

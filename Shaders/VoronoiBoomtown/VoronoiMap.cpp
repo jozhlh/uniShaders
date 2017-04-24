@@ -1,25 +1,33 @@
 #include "VoronoiMap.h"
 
-VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
+VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext, ModelBank* bank,
+	XMINT2 dimensions, float border, float noiseHeight, float noiseResolution, float size, float numberOfRegions, XMFLOAT3 baseColour)
 {
-	desertColour = XMFLOAT3(1.0f, 0.95f, 0.6f);
-	yPos = 0;
-	cellSize = 1.0f;
-	xCells = 60;
-	zCells = 60;
-	noise.Height = 2.0f;
-	noise.Resolution = 7.5f;
-	noise.Location = XMFLOAT2(1.0f, 1.0f);
-	noise.scaleModifier = cellSize;
-	noiseEngine = new ImprovedNoise();
-	modelBank = new ModelBank();
-	modelBank->Init(device, deviceContext);
-	stockTexture = new Texture(device, deviceContext, L"../res/palette.png");
-	GenerateRegions(MAJOR_BUILDINGS);
-	AssignCellsToRegions(device, deviceContext);
-
 	random_device rd;
 	mt19937 mt(rd());
+
+	uniform_int_distribution<int> noiseLocationSelection(1, 100);
+
+	//basePlateColour = baseColour;
+	yPos = 0;
+	cellSize = size;
+	xCells = dimensions.x;
+	zCells = dimensions.y;
+	cellBorder = border;
+	numOfRegions = numberOfRegions;
+	noise.Height = noiseHeight;
+	noise.Resolution = noiseResolution;
+	noise.Location = XMFLOAT2(noiseLocationSelection(mt), noiseLocationSelection(mt));
+	noise.scaleModifier = cellSize;
+	noiseEngine = new ImprovedNoise();
+	modelBank = bank;
+	modelBank->Init(device, deviceContext);
+	stockTexture = new Texture(device, deviceContext, L"../res/palette.png");
+	GenerateRegions(numberOfRegions);
+	AssignCellsToRegions(device, deviceContext);
+
+	basePlate = new CubeMesh(device, deviceContext, L"../res/palette.png", 2);
+
 	uniform_int_distribution<int> minorAssetSelection(1, MINOR_BUILDINGS-1);
 
 	int iterator = 0;
@@ -37,7 +45,7 @@ VoronoiMap::VoronoiMap(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 	int r = 0.0f;
 	for each (Region* region in regions)
 	{
-		//region->DifferentiateCells(r * .05f);
+		region->DifferentiateCells(r);
 		region->AssignMajorBuilding(&modelBank->majorBuildings[(int)r], cellSize, zCells);
 		region->PlaceDerrick(&modelBank->minorBuildings[0], cellSize);
 		region->PlaceMinorAsset(&modelBank->minorBuildings[minorAssetSelection(mt)], cellSize);
@@ -61,10 +69,16 @@ VoronoiMap::~VoronoiMap()
 		noiseEngine = nullptr;
 	}
 
-	if (modelBank)
+	if (stockTexture)
 	{
-		delete modelBank;
-		modelBank = nullptr;
+		delete stockTexture;
+		stockTexture = nullptr;
+	}
+
+	if (basePlate)
+	{
+		delete basePlate;
+		basePlate = nullptr;
 	}
 
 	for each (Cell* cell in unassignedCells)
@@ -81,16 +95,26 @@ VoronoiMap::~VoronoiMap()
 }
 
 void VoronoiMap::Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection,
-	SpecularLightShader *shader, Light *light, XMFLOAT3 cameraPosition)
+	SpecularLightShader *shader, SpecularTerrainShader* terrainShader, Light *light, XMFLOAT3 cameraPosition, XMFLOAT3 nodeColour, XMFLOAT3 centreColour, XMFLOAT3 regionColour,
+	bool showNodes, bool identifyRegions, XMFLOAT3 baseColour)
 {
 	for each (Cell* cell in unassignedCells)
 	{
-		cell->Render(deviceContext, world, view, projection, shader, light, cameraPosition, stockTexture, true, desertColour);
+		cell->Render(deviceContext, world, view, projection, terrainShader, light, cameraPosition, stockTexture, regionColour, identifyRegions, numOfRegions);
 	}
 	for each (Region* region in regions)
 	{
-		region->Render(deviceContext, world, view, projection, shader, light, cameraPosition, stockTexture, false, desertColour);
+		region->Render(deviceContext, world, view, projection, shader, light, cameraPosition, stockTexture, centreColour, nodeColour, showNodes);
 	}
+
+	XMMATRIX worldMatrix = XMMatrixMultiply(XMMatrixScaling((cellSize * 0.5f * xCells) + 0.2f, 0.25f, (cellSize * 0.5f * zCells) + 0.2f), XMMatrixTranslation(0, -0.6f, 0));
+	
+	//// Send geometry data (from mesh)
+	basePlate->SendData(deviceContext);
+	//// Set shader parameters (matrices and texture)
+	shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, basePlate->GetTexture(), light, cameraPosition, true, baseColour);
+	//// Render object (combination of mesh geometry and shader process
+	shader->Render(deviceContext, basePlate->GetIndexCount());
 }
 
 void VoronoiMap::GenerateRegions(int num)
@@ -118,7 +142,7 @@ void VoronoiMap::AssignCellsToRegions(ID3D11Device *device, ID3D11DeviceContext 
 	{
 		for (int z = 0; z < zCells; z++)
 		{
-			Cell* m_Cell = new Cell(device, deviceContext, x, z, xCells, zCells, &noise, cellSize, noiseEngine);;
+			Cell* m_Cell = new Cell(device, deviceContext, x, z, xCells, zCells, &noise, cellSize, cellBorder, noiseEngine);;
 			m_Cell->SetCoordinates((mapSize * -0.5) + ((cellSize*0.5f) + (x*cellSize)), yPos, (mapSize * -0.5) + ((cellSize*0.5f) + (z*cellSize)));
 			unassignedCells.push_back(m_Cell);
 		}
@@ -164,15 +188,6 @@ float VoronoiMap::RegionDistance(Cell* cell, Region* region)
 	return sqrtf((xComponent * xComponent) + (yComponent * yComponent));
 }
 
-//bool VoronoiMap::CompareRegionSize(const Region* first, const Region* second)
-//{
-//	if (first->GetCellCount() > second->GetCellCount())
-//	{
-//		return true;
-//	}
-//	return false;
-//}
-
 void VoronoiMap::SortRegionsBySize()
 {
 	list<Region*> tempRegions;
@@ -190,4 +205,10 @@ void VoronoiMap::SortRegionsBySize()
 		regions.remove(largestRegion);
 	}
 	regions = tempRegions;
+	int order = 0;
+	for each (Region* region in regions)
+	{
+		region->SetCellIDs(order);
+		order++;
+	}
 }

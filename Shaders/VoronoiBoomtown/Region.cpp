@@ -19,11 +19,11 @@ Region::~Region()
 		delete centreSphere;
 		centreSphere = nullptr;
 	}
-	if (centralBuilding)
+	/*if (centralBuilding)
 	{
 		delete centralBuilding;
 		centralBuilding = nullptr;
-	}
+	}*/
 	/*if (derrick)
 	{
 		delete derrick;
@@ -38,6 +38,8 @@ void Region::Init(ID3D11Device * device, ID3D11DeviceContext * deviceContext, in
 	sphereScale = 0.2f;
 	numOfCells = 0;
 	id = regionNum;
+	yOff = 0.5f;
+	buildingOffset = -0.2f;
 	for each (Cell* cell in m_ChildCells)
 	{
 		cell->SetParent(id);
@@ -75,10 +77,11 @@ void Region::CalculateCentre(float cellArea)
 
 void Region::DifferentiateCells(float r)
 {
-	yOff = 0.5f + r;
+	//yOff = 0.5f + r;
 	for each (Cell* cell in m_ChildCells)
 	{
-		cell->SetCoordinates(cell->GetCoordinates().x, r, cell->GetCoordinates().z);
+		//cell->SetCoordinates(cell->GetCoordinates().x, r, cell->GetCoordinates().z);
+		cell->SetParent((int)r);
 	}
 }
 
@@ -91,79 +94,9 @@ void Region::GiveCell(Cell* m_Cell)
 void Region::AssignMajorBuilding(Building * building, float cellSize, int zCells)
 {
 	centralBuilding = building;
-	//// Calculate building placement / rotation
-	//	// Get Central Cell Coordinates
-	//		// validPlacement = true
-	//bool validPlacement = true;
-	//// for xIterator = 0; xIterator < dimensions.x
-	//for (int x = 0; x < building->dimensions.x; x++)
-	//{
-	//	// for zIterator = 0; zIterator < dimensions.z
-	//	for (int z = 0; z < building->dimensions.z; z++)
-	//	{
-	//		if (!CheckOrientation(centreOfRegion, x, z, building->dimensions.x, building->dimensions.z, cellSize))
-	//		{
-	//			validPlacement = false;
-	//			break;
-	//		}
-	//	}
-	//	if (!validPlacement)
-	//	{
-	//		break;
-	//	}
-	//}
-	//if (!validPlacement)
-	//{
-	//	for each (Cell* cell in m_ChildCells)
-	//	{
-	//		cell->altTexture = false;
-	//	}
-	//	validPlacement = true;
-	//	for (int x = 0; x < building->dimensions.z; x++)
-	//	{
-	//		// for zIterator = 0; zIterator < dimensions.z
-	//		for (int z = 0; z < building->dimensions.x; z++)
-	//		{
-	//			if (!CheckOrientation(centreOfRegion, x, z, building->dimensions.z, building->dimensions.x, cellSize))
-	//			{
-	//				validPlacement = false;
-	//				break;
-	//			}
-	//		}
-	//		if (!validPlacement)
-	//		{
-	//			break;
-	//		}
-	//	}
-	//	if (!validPlacement)
-	//	{
-	//		for each (Cell* cell in m_ChildCells)
-	//		{
-	//			cell->altTexture = false;
-	//		}
-	//		// building cannot be placed on central location
-	//		hasMajorBuilding = false;
-	//	}
-	//	else
-	//	{
-	//		// Building could be placed in the second orientation
-	//		buildingLocation = centreOfRegion;
-	//		buildingRotation = XM_PIDIV2;
-	//		hasMajorBuilding = true;
-	//	}
-	//}
-	//else
-	//{
-	//	// Building could be placed in the first orientation
-	//	buildingLocation = centreOfRegion;
-	//	buildingRotation = 0.0f;
-	//	hasMajorBuilding = true;
-	//}
-
-	// new implementation
-
+	
 	hasMajorBuilding = CheckBuildingPlacement(centralBuilding, centreOfRegion, cellSize);
-	if (centralBuilding->location.z < /*(zCells * 0.5f * cellSize)*/ 0)
+	if (centralBuilding->location.z < 0)
 	{
 		if (centralBuilding->rotation < 1)
 		{
@@ -176,39 +109,7 @@ void Region::AssignMajorBuilding(Building * building, float cellSize, int zCells
 void Region::PlaceDerrick(Building * derrickModel, float cellSize)
 {
 	derrick = *derrickModel;
-	//bool validPlacement = true;
-	//for (int x = 0; x < derrick->dimensions.x; x++)
-	//{
-	//	// for zIterator = 0; zIterator < dimensions.z
-	//	for (int z = 0; z < derrick->dimensions.z; z++)
-	//	{
-	//		if (!CheckOrientation(XMFLOAT3(nodeCoords.x, 0, nodeCoords.y), x, z, derrick->dimensions.x, derrick->dimensions.z, cellSize))
-	//		{
-	//			validPlacement = false;
-	//			break;
-	//		}
-	//	}
-	//	if (!validPlacement)
-	//	{
-	//		break;
-	//	}
-	//}
-	//if (!validPlacement)
-	//{
-	//	for each (Cell* cell in m_ChildCells)
-	//	{
-	//		cell->altTexture = false;
-	//	}
-	//	// building cannot be placed on central location
-	//	hasDerrick = false;
-	//}
-	//else
-	//{
-	//	// Building could be placed in the second orientation
-	//	hasDerrick = true;
-	//}
 
-	// new imp
 	XMFLOAT3 nodePos = XMFLOAT3(nodeCoords.x, 0, nodeCoords.y);
 	hasDerrick = CheckBuildingPlacement(&derrick, nodePos, cellSize);
 
@@ -307,77 +208,14 @@ void Region::PlaceMinorAsset(Building* building, float cellSize)
 	}
 }
 
-
-//bool Region::CheckOrientation(XMFLOAT3 centre, int xIterator, int zIterator, float x, float z, float cellSize)
-//{
-//	// targetCoords = ((-(dimensions.x / 2 (rounded down))+ xIterator) * cellSize, (-(dimensions.y / 2 (rounded down))+ zIterator) * cellSize)
-//	//XMFLOAT3 targetCoords = XMFLOAT3(((centreOfRegion.x-(x / 2) + xIterator) * cellSize), (1 / 2) * cellSize, ((centreOfRegion.z-(z / 2) + zIterator) * cellSize));
-//	XMFLOAT3 targetCoords = centre;
-//	if (x < 2)
-//	{
-//
-//	}
-//	else if ((int)x % 2)
-//	{
-//		targetCoords.x = (targetCoords.x - ((x - 1) * cellSize * 0.5)) + (xIterator*cellSize);
-//	}
-//	else
-//	{
-//		targetCoords.x = (targetCoords.x - (x * cellSize * 0.5)) + (xIterator*cellSize);
-//	}
-//
-//	if (z < 2)
-//	{
-//
-//	}
-//	else if ((int)z % 2)
-//	{
-//		targetCoords.z = (targetCoords.z - ((z - 1) * cellSize * 0.5)) + (zIterator*cellSize);
-//	}
-//	else
-//	{
-//		targetCoords.z = (targetCoords.z - (z * cellSize * 0.5)) + (zIterator*cellSize);
-//	}
-//	
-//	std::list<Cell*> temporarilyOccupiedCells;
-//
-//	// validCell = false
-//	bool validCell = false;
-//	// for each cell in child cells
-//	for each (Cell* cell in m_ChildCells)
-//	{
-//		// check to see if the cell is occupied
-//		if (!cell->IsOccupied())
-//		{
-//			//cell->altTexture = true;
-//			// if cell.contains( targetCoords)
-//			if (cell->CellContainsPoint(targetCoords))
-//			{
-//				validCell = true;
-//				cell->SetOccupied(true);
-//				temporarilyOccupiedCells.push_back(cell);
-//				cell->altTexture = true;
-//				break;
-//			}
-//		}
-//	}
-//	// if validCell == false rotate and start over
-//	if (!validCell)
-//	{
-//		for each (Cell* cell in temporarilyOccupiedCells)
-//		{
-//			cell->SetOccupied(false);
-//		}
-//		return false;
-//	}
-//
-//	for each (Cell* cell in temporarilyOccupiedCells)
-//	{
-//		m_OccupiedCells.push_back(cell);
-//	}
-//
-//	return true;
-//}
+void Region::SetCellIDs(int order)
+{
+	id = order;
+	for each(Cell* cell in m_ChildCells)
+	{
+		cell->SetParent(order);
+	}
+}
 
 bool Region::CheckBuildingPlacement(Building* building, XMFLOAT3 centralCell, float cellSize)
 {
@@ -484,7 +322,6 @@ bool Region::CheckBuildingPlacement(Building* building, XMFLOAT3 centralCell, fl
 	return false;
 }
 
-
 vector<XMFLOAT3> Region::GetBuildingCoordinates(float xDimension, float zDimension, XMFLOAT3 centralCell, float cellSize)
 {
 	vector<XMFLOAT3> buildingCoordinates;
@@ -525,75 +362,74 @@ vector<XMFLOAT3> Region::GetBuildingCoordinates(float xDimension, float zDimensi
 }
 
 void Region::Render(ID3D11DeviceContext * deviceContext, const XMMATRIX & world, const XMMATRIX & view, const XMMATRIX & projection,
-	SpecularLightShader * shader, Light * light, XMFLOAT3 cameraPosition, Texture* tex, bool tile, XMFLOAT3 tileColour)
+	SpecularLightShader * shader, Light * light, XMFLOAT3 cameraPosition, Texture* tex, XMFLOAT3 centreColour, XMFLOAT3 nodeColour,
+	bool showNodes)
 {
 	XMMATRIX worldMatrix = world;
-	// Translate sphere mesh
-	worldMatrix = XMMatrixMultiply(XMMatrixScaling(sphereScale, sphereScale, sphereScale), XMMatrixTranslation(nodeCoords.x, yOff, nodeCoords.y));
+	
 
 
 	//// Send geometry data (from mesh)
-	nodeSphere->SendData(deviceContext);
-	//// Set shader parameters (matrices and texture)
-	shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, tile, tileColour);
-	//// Render object (combination of mesh geometry and shader process
-	shader->Render(deviceContext, nodeSphere->GetIndexCount());
-	// Reset world matrix
-	//float deScale = 1.0f;
-	//if (deScale > 0) deScale = 1.0f / sphereScale;
-	//worldMatrix = XMMatrixMultiply(XMMatrixTranslation(-nodeCoords.x, -yOff, -nodeCoords.y), XMMatrixScaling(deScale, deScale, deScale));
-
-	// Translate sphere mesh
-	worldMatrix = XMMatrixMultiply(XMMatrixScaling(sphereScale * 1.2f, sphereScale * 1.2f, sphereScale * 1.2f), XMMatrixTranslation(centreOfRegion.x, yOff, centreOfRegion.z));
-
-	//// Send geometry data (from mesh)
-	centreSphere->SendData(deviceContext);
-	//// Set shader parameters (matrices and texture)
-	shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, tile, tileColour);
-	//// Render object (combination of mesh geometry and shader process
-	shader->Render(deviceContext, centreSphere->GetIndexCount());
-	// Reset world matrix
-	//deScale = 1.0f;
-	//if (deScale > 0) deScale = 1.0f / sphereScale;
-	//worldMatrix = XMMatrixMultiply(XMMatrixTranslation(-centreOfRegion.x, -yOff, -centreOfRegion.z), XMMatrixScaling(deScale, deScale, deScale));
-
-	if (hasMajorBuilding)
+	if (showNodes)
 	{
-		RenderCentralBuilding(deviceContext, world, view, projection, shader, light, cameraPosition, tex, tile, tileColour);
-	}
+		// Translate sphere mesh
+		worldMatrix = XMMatrixMultiply(XMMatrixScaling(sphereScale, sphereScale, sphereScale), XMMatrixTranslation(nodeCoords.x, yOff, nodeCoords.y));
 
-	if (hasDerrick)
-	{
-		worldMatrix = XMMatrixMultiply(XMMatrixScaling(derrick.scale, derrick.scale, derrick.scale), XMMatrixTranslation(derrick.location.x, yOff, derrick.location.z));
-		//// Send geometry data (from mesh)
-		derrick.asset->SendData(deviceContext);
+		nodeSphere->SendData(deviceContext);
 		//// Set shader parameters (matrices and texture)
-		shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, tile, tileColour);
+		shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, showNodes, nodeColour);
 		//// Render object (combination of mesh geometry and shader process
-		shader->Render(deviceContext, derrick.asset->GetIndexCount());
-		// Reset world matrix
-		//deScale = 1.0f;
-		//if (deScale > 0) deScale = 1.0f / derrick->scale;
-		//worldMatrix = XMMatrixMultiply(XMMatrixTranslation(-nodeCoords.x, -yOff, -nodeCoords.y), XMMatrixScaling(deScale, deScale, deScale));
+		shader->Render(deviceContext, nodeSphere->GetIndexCount());
+
+		// Translate sphere mesh
+		worldMatrix = XMMatrixMultiply(XMMatrixScaling(sphereScale * 1.2f, sphereScale * 1.2f, sphereScale * 1.2f), XMMatrixTranslation(centreOfRegion.x, yOff, centreOfRegion.z));
+
+		//// Send geometry data (from mesh)
+		centreSphere->SendData(deviceContext);
+		//// Set shader parameters (matrices and texture)
+		shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, showNodes, centreColour);
+		//// Render object (combination of mesh geometry and shader process
+		shader->Render(deviceContext, centreSphere->GetIndexCount());
 	}
-
-	if (m_MinorAssets.size() > 0)
+	else
 	{
-		for each (Building mAsset in m_MinorAssets)
+		if (hasMajorBuilding)
 		{
-			XMVECTOR axis = { 0.0f, 1.0f, 0.0f };
+			RenderCentralBuilding(deviceContext, world, view, projection, shader, light, cameraPosition, tex, showNodes, nodeColour);
+		}
 
-			XMMATRIX tempMatrix = XMMatrixMultiply(XMMatrixScaling(mAsset.scale, mAsset.scale, mAsset.scale), XMMatrixRotationAxis(axis, mAsset.rotation));
-			worldMatrix = XMMatrixMultiply(tempMatrix, XMMatrixTranslation(mAsset.location.x, yOff, mAsset.location.z));
-			
+		if (hasDerrick)
+		{
+			worldMatrix = XMMatrixMultiply(XMMatrixScaling(derrick.scale, derrick.scale, derrick.scale), XMMatrixTranslation(derrick.location.x, buildingOffset, derrick.location.z));
 			//// Send geometry data (from mesh)
-			mAsset.asset->SendData(deviceContext);
+			derrick.asset->SendData(deviceContext);
 			//// Set shader parameters (matrices and texture)
-			shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, tile, tileColour);
+			shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, showNodes, nodeColour);
 			//// Render object (combination of mesh geometry and shader process
-			shader->Render(deviceContext, mAsset.asset->GetIndexCount());
+			shader->Render(deviceContext, derrick.asset->GetIndexCount());
+		}
+
+		if (m_MinorAssets.size() > 0)
+		{
+			for each (Building mAsset in m_MinorAssets)
+			{
+				XMVECTOR axis = { 0.0f, 1.0f, 0.0f };
+
+				XMMATRIX tempMatrix = XMMatrixMultiply(XMMatrixScaling(mAsset.scale, mAsset.scale, mAsset.scale), XMMatrixRotationAxis(axis, mAsset.rotation));
+				worldMatrix = XMMatrixMultiply(tempMatrix, XMMatrixTranslation(mAsset.location.x, buildingOffset, mAsset.location.z));
+
+				//// Send geometry data (from mesh)
+				mAsset.asset->SendData(deviceContext);
+				//// Set shader parameters (matrices and texture)
+				shader->SetShaderParameters(deviceContext, worldMatrix, view, projection, tex->GetTexture(), light, cameraPosition, showNodes, nodeColour);
+				//// Render object (combination of mesh geometry and shader process
+				shader->Render(deviceContext, mAsset.asset->GetIndexCount());
+			}
 		}
 	}
+	
+
+	
 
 }
 
@@ -607,7 +443,7 @@ void Region::RenderCentralBuilding(ID3D11DeviceContext * deviceContext, const XM
 
 	XMMATRIX tempMatrix = XMMatrixMultiply(XMMatrixScaling(centralBuilding->scale, centralBuilding->scale, centralBuilding->scale), XMMatrixRotationAxis(axis, centralBuilding->rotation));
 	//worldMatrix = XMMatrixScaling(centralBuilding->scale, centralBuilding->scale, centralBuilding->scale);
-	worldMatrix = XMMatrixMultiply(tempMatrix, XMMatrixTranslation(centralBuilding->location.x, yOff, centralBuilding->location.z));
+	worldMatrix = XMMatrixMultiply(tempMatrix, XMMatrixTranslation(centralBuilding->location.x, buildingOffset, centralBuilding->location.z));
 
 	//// Send geometry data (from mesh)
 	centralBuilding->asset->SendData(deviceContext);

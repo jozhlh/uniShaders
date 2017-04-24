@@ -15,6 +15,7 @@
 #include "TextureShader.h"
 #include "UiManager.h"
 #include "VoronoiMap.h"
+#include "ModelBank.h"
 
 #define ANIM_CAP 20.0f
 
@@ -49,6 +50,7 @@ private:
 
 	// Shader Objects
 	SpecularLightShader* m_LightShader;
+	SpecularTerrainShader* m_TerrainShader;
 	TextureShader* m_TextureShader;
 	VerticalBlurShader* m_VerticalBlurShader;
 	HorizontalBlurShader* m_HorizontalBlurShader;
@@ -61,6 +63,7 @@ private:
 	Light* m_Light;
 
 	// Voronoi
+	ModelBank* m_ModelBank;
 	VoronoiMap* m_VoronoiMap;
 
 	// Other variables
