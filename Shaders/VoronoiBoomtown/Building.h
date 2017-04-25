@@ -1,3 +1,7 @@
+// VoronoiBoomtown - Building.h
+// Josh Hale - 2017
+// A container for models which are placed on the grid
+
 #ifndef _BUILDING_H
 #define _BUILDING_H
 
@@ -13,11 +17,10 @@ public:
 
 	int priority;
 	float scale;
-	XMFLOAT3 location;
 	float rotation;
 	Model* asset;
 	XMFLOAT3 dimensions;
-	XMFLOAT2 offset; // for putting the origin at the centre of a cell
+	XMFLOAT3 location;
 };
 
 #endif

@@ -1,12 +1,13 @@
-// texture shader.cpp
-#include "textureshader.h"
+// Voronoi Boomtown - TextureShader.cpp
+// Josh Hale - 2017
+// Loads texture shaders and passes data to them
 
+#include "textureshader.h"
 
 TextureShader::TextureShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 	InitShader(L"shaders/texture_vs.hlsl", L"shaders/texture_ps.hlsl");
 }
-
 
 TextureShader::~TextureShader()
 {
@@ -34,7 +35,6 @@ TextureShader::~TextureShader()
 	//Release base shader components
 	BaseShader::~BaseShader();
 }
-
 
 void TextureShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 {
@@ -75,7 +75,6 @@ void TextureShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 	m_device->CreateSamplerState(&samplerDesc, &m_sampleState);
 
 }
-
 
 void TextureShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture)
 {

@@ -1,5 +1,12 @@
+// VoronoiBoomtown - Cell.cpp
+// Josh Hale - 2017
+// A container for the cell which holds its model, region owner and occupation status
+
 #include "Cell.h"
 
+// Constructor
+/// PARAMETERS
+// All parameters to be passed to ProcCubeMesh for calculating the shape of the cuboid mesh of the cell
 Cell::Cell(ID3D11Device *device, ID3D11DeviceContext *deviceContext, int cellX, int cellZ, int xSegments, int zSegments, NoiseData* noise, float size, float border, ImprovedNoise* noiseEngine)
 {
 	m_SurfaceModel = new ProcCubeMesh(device, deviceContext, L"../res/checkerboard.png", cellX, cellZ, xSegments, zSegments, border, noise, noiseEngine);
@@ -16,6 +23,11 @@ Cell::~Cell()
 	}
 }
 
+// AABB collision detection for interrogating cell
+/// PARAMETERS
+// point - x, z location of point which may be within the cell
+/// OUTPUT
+// bool - whether the point is in the bouds of the cell
 bool Cell::CellContainsPoint(XMFLOAT3 point)
 {
 	if (point.x < (position.x - (scale)))
@@ -37,6 +49,9 @@ bool Cell::CellContainsPoint(XMFLOAT3 point)
 	return true;
 }
 
+// Render the cuboid cell mesh
+/// PARAMETERS
+// All parameters to be passed to the shader
 void Cell::Render(ID3D11DeviceContext *deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection,
 	SpecularTerrainShader* shader, Light* light, XMFLOAT3 cameraPosition, Texture* tex, XMFLOAT3 terrainBaseColor, bool identify, int numOfRegions)
 {

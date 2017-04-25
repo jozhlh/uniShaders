@@ -1,4 +1,7 @@
-// Horizontal blur shader
+// VoronoiBoomtown - HorizontalBlurShader.cpp
+// Josh Hale - 2017
+// Loads horizontal blur shaders (vs and ps) and passes screen width to shaders, for sample coordinate calculation
+
 #include "horizontalblurshader.h"
 
 
@@ -6,7 +9,6 @@ HorizontalBlurShader::HorizontalBlurShader(ID3D11Device* device, HWND hwnd) : Ba
 {
 	InitShader(L"shaders/horizontalBlur_vs.hlsl", L"shaders/horizontalBlur_ps.hlsl");
 }
-
 
 HorizontalBlurShader::~HorizontalBlurShader()
 {
@@ -41,7 +43,6 @@ HorizontalBlurShader::~HorizontalBlurShader()
 	//Release base shader components
 	BaseShader::~BaseShader();
 }
-
 
 void HorizontalBlurShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 {
@@ -94,7 +95,6 @@ void HorizontalBlurShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 	m_device->CreateBuffer(&screenSizeBufferDesc, NULL, &m_ScreenSizeBuffer);
 
 }
-
 
 void HorizontalBlurShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, float width, XMFLOAT3 blurWeights)
 {

@@ -1,4 +1,7 @@
-// texture shader.h
+// Voronoi Boomtown - TextureShader.h
+// Josh Hale - 2017
+// Loads texture shaders and passes data to them
+
 #ifndef _TEXTURESHADER_H_
 #define _TEXTURESHADER_H_
 

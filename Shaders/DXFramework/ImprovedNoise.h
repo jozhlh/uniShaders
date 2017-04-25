@@ -1,3 +1,7 @@
+// DXFramework - ImprovedNoise.h
+// Josh Hale - 2017
+// Returns a noise value when passed a location
+
 #ifndef _IMPROVEDNOISE_H
 #define _IMPROVEDNOISE_H
 

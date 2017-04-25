@@ -1,7 +1,10 @@
 // VoronoiBoomtown - AppBoomtown.cpp
-// Draws a sphere, which is manipulated through various graphics pipeline stages
+// Josh Hale - 2017
+// Application which generates a town using voronoi regiones on a noise terrain with clumped asset placement and Gaussian Blur
+
 #include "AppBoomtown.h"
 
+// Constructor
 AppBoomtown::AppBoomtown()
 {
 	// System Objects
@@ -24,7 +27,6 @@ AppBoomtown::AppBoomtown()
 
 	// Geometry
 	m_OrthoMesh = nullptr;
-	m_testModel0 = nullptr;
 
 	// Lights
 	m_Light = nullptr;
@@ -33,6 +35,11 @@ AppBoomtown::AppBoomtown()
 	m_VoronoiMap = nullptr;
 }
 
+// Initialisation method
+/// PARAMETERS
+// hinstance, hwnd - pointers to the window
+// screenWidth, screenHeight - the size of the window for blur calculations
+// in - pointer to the keyboard controls
 void AppBoomtown::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input *in)
 {
 	// Call super init function (required!)
@@ -67,16 +74,14 @@ void AppBoomtown::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int scre
 	m_HorizontalBlurShader = new HorizontalBlurShader(m_Direct3D->GetDevice(), hwnd);
 	m_TextureShader = new TextureShader(m_Direct3D->GetDevice(), hwnd);
 
-	// Create Geometry with checkerboard texture
-	m_testModel0 = new Model(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"../res/palette.png", L"../res/testObject0.obj");
-
-	// ortho size and position set based on window size
+	// Ortho size and position set based on window size
 	// Position default at 0x0 centre window, to offset change values (pixel)
 	m_OrthoMesh = new OrthoMesh(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, 0, 0);
 
 	// Create Light object
 	m_Light = new Light;
 
+	// Load required models and textures
 	m_ModelBank = new ModelBank();
 
 	// Initialise light properties
@@ -90,10 +95,12 @@ void AppBoomtown::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int scre
 
 	m_Light->SetSpecularColour(m_UiManager->specularColour.x, m_UiManager->specularColour.y, m_UiManager->specularColour.z, m_UiManager->specularColour.w);
 
+	// Create map and perform preocedural calculations
 	m_VoronoiMap = new VoronoiMap(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), m_ModelBank,
 		m_UiManager->gridDimensions, m_UiManager->cellBorder, m_UiManager->noiseHeight, m_UiManager->noiseResolution, m_UiManager->cellSize, m_UiManager->numberOfRegions, m_UiManager->regionColour);
 }
 
+// Deconstructor
 AppBoomtown::~AppBoomtown()
 {
 	// Run base application deconstructor
@@ -165,11 +172,6 @@ AppBoomtown::~AppBoomtown()
 	}
 
 	// Release Geometry
-	if (m_testModel0)
-	{
-		delete m_testModel0;
-		m_testModel0 = 0;
-	}
 	if (m_OrthoMesh)
 	{
 		delete m_OrthoMesh;
@@ -197,7 +199,9 @@ AppBoomtown::~AppBoomtown()
 	}
 }
 
-
+// Game logic update function
+/// OUTPUT
+// bool - frame was successfully calculated
 bool AppBoomtown::Frame()
 {
 	// Get delta time and calculate frame rate
@@ -210,6 +214,7 @@ bool AppBoomtown::Frame()
 
 	if (!result) return false;
 
+	// Regenerate map and run procedural generation algorithms
 	if (m_UiManager->generate)
 	{
 		m_UiManager->generate = false;
@@ -222,6 +227,8 @@ bool AppBoomtown::Frame()
 		m_VoronoiMap = new VoronoiMap(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), m_ModelBank,
 			m_UiManager->gridDimensions, m_UiManager->cellBorder, m_UiManager->noiseHeight, m_UiManager->noiseResolution, m_UiManager->cellSize, m_UiManager->numberOfRegions, m_UiManager->regionColour);
 	}
+
+	// Update light parameters
 	if (m_UiManager->lightChanged)
 	{
 		m_UiManager->lightChanged = false;
@@ -234,7 +241,7 @@ bool AppBoomtown::Frame()
 
 	// Display UI window
 	bool show_test_window = true;
-	//ImGui::ShowTestWindow(&show_test_window);
+
 	m_UiManager->ShowUi(&show_test_window);
 
 	// Render the scene to a texture
@@ -255,6 +262,9 @@ bool AppBoomtown::Frame()
 	return true;
 }
 
+// Render the scene to a texture to be blurred or output
+/// OUTPUT
+// bool - the frame was rendered
 bool AppBoomtown::RenderToTexture()
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
@@ -262,10 +272,9 @@ bool AppBoomtown::RenderToTexture()
 	// Set the render target to be the render to texture.
 	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 
-	// Clear the render to texture. use the RGBA value to set background of texture // WHITE
-	//m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 1.0f, 1.0f, 1.0f);
+	// Clear the render to texture. use the RGBA value to set background of texture // Sand
 	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 1.0f, 0.95f, 0.6f, 1.0f);
-	//(1.0f, 0.95f, 0.6f);
+
 	//// Generate the view matrix based on the camera's position.
 	m_Camera->Update();
 
@@ -274,19 +283,7 @@ bool AppBoomtown::RenderToTexture()
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	// Translate sphere mesh
-	//worldMatrix = XMMatrixScaling(m_UiManager->sphereSize, m_UiManager->sphereSize, m_UiManager->sphereSize) + XMMatrixTranslation(m_UiManager->spherePosition.x, m_UiManager->spherePosition.y, m_UiManager->spherePosition.z);
-	////// Send geometry data (from mesh)
-	//m_testModel0->SendData(m_Direct3D->GetDeviceContext());
-	////// Set shader parameters (matrices and texture)
-	//m_LightShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_testModel0->GetTexture(), m_Light, m_Camera->GetPosition());
-	////// Render object (combination of mesh geometry and shader process
-	//m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_testModel0->GetIndexCount());
-	//// Reset world matrix
-	//float deScale = 1.0f;
-	//if (deScale > 0) deScale = 1.0f / m_UiManager->sphereSize;
-	//worldMatrix = XMMatrixScaling(deScale, deScale, deScale) + XMMatrixTranslation(-m_UiManager->spherePosition.x, -m_UiManager->spherePosition.y, -m_UiManager->spherePosition.z);
-
+	// Render all parts of the procedurally generated scene
 	m_VoronoiMap->Render(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_LightShader, m_TerrainShader, m_Light, m_Camera->GetPosition(), m_UiManager->nodeColour,
 		m_UiManager->centreOfRegionColour, m_UiManager->regionColour, m_UiManager->showNodes, m_UiManager->identifyRegions, m_UiManager->basePlateColour, m_UiManager->yOffset);
 
@@ -296,6 +293,9 @@ bool AppBoomtown::RenderToTexture()
 	return true;
 }
 
+// Render blurred or crisp texture to scene
+/// OUTPUT
+// bool - the frame was rendered to screen
 bool AppBoomtown::Render()
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix;
@@ -332,7 +332,9 @@ bool AppBoomtown::Render()
 	return true;
 }
 
-
+// Downsample the rendered texture
+/// PARAMETERS
+// sourceTexture - texture containing rendered image of the scene
 void AppBoomtown::DownSample(RenderTexture* sourceTexture)
 {
 	XMMATRIX worldMatrix, orthoMatrix, baseViewMatrix;
@@ -358,6 +360,7 @@ void AppBoomtown::DownSample(RenderTexture* sourceTexture)
 	m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
 }
 
+// Blur the texture with its horizontally neighbouring pixels
 void AppBoomtown::HorizontalBlur()
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix, baseViewMatrix;
@@ -379,6 +382,7 @@ void AppBoomtown::HorizontalBlur()
 	m_HorizontalBlurShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
 }
 
+// Blur the texture with its vertically neighbouring pixels
 void AppBoomtown::VerticalBlur()
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix, baseViewMatrix;
@@ -403,6 +407,7 @@ void AppBoomtown::VerticalBlur()
 	m_VerticalBlurShader->Render(m_Direct3D->GetDeviceContext(), m_OrthoMesh->GetIndexCount());
 }
 
+// Upsample the blurred texture
 void AppBoomtown::UpSample()
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix, baseViewMatrix;

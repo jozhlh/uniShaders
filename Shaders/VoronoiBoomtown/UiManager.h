@@ -1,3 +1,7 @@
+// Voronoi Boomtown - UiManager.h
+// Josh Hale - 2017
+// An interface between the ImGui UI system and the application
+
 #ifndef UIMANAGER_H_
 #define UIMANAGER_H_
 
@@ -7,6 +11,7 @@
 
 #include <vector>
 
+// Slider parameters
 #define MAX_REGIONS 11
 #define MAX_CELLS 100
 #define MAX_CELL_SIZE 15.0f

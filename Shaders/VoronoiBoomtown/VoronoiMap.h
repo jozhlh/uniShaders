@@ -1,6 +1,7 @@
-// VoronoiBoomtown - VoronoiMap.h
-// References: https://channel9.msdn.com/Events/GoingNative/2013/rand-Considered-Harmful
-// https://view.officeapps.live.com/op/view.aspx?src=http%3a%2f%2fvideo.ch9.ms%2fsessions%2fgonat%2f2013%2fSTLGN13rand.pptx
+// Voronoi Boomtown - VoronoiMap.h
+// Josh Hale - 2017
+// Creates a grid, split into regions which are sorted and have models placed in their centres
+
 #ifndef _VORONOIMAP_H
 #define _VORONOIMAP_H
 
@@ -22,6 +23,7 @@ public:
 		bool showNodes, bool identifyRegions, XMFLOAT3 baseColour, float yOff);
 
 private:
+	// Calculation Methods
 	void GenerateRegions(int num);
 	void SortRegionsBySize();
 	void AssignCellsToRegions(ID3D11Device *device, ID3D11DeviceContext *deviceContext);

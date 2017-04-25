@@ -1,10 +1,10 @@
-// Vertical blur shader handler
-// Loads vertical blur shaders (vs and ps)
-// Passes screen height to shaders, for sample coordinate calculation
+// VoronoiBoomtown -  VerticalBlurShader.h
+// Josh Hale - 2017
+// Loads vertical blur shaders (vs and ps) and passes screen height to shaders, for sample coordinate calculation
+
 #ifndef _VERTICALBLURSHADER_H_
 #define _VERTICALBLURSHADER_H_
 
-//#include "../DXFramework/DXF.h"
 #include "../DXFramework/BaseShader.h"
 
 using namespace std;

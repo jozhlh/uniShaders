@@ -1,5 +1,7 @@
-// Light shader.h
-// Basic single light shader setup
+// Voronoi Boomtown - SpecularLightShader.h
+// Josh Hale - 2017
+// Loads shaders for a single specular light used to render models
+
 #ifndef _SPECULARLIGHTSHADER_H_
 #define _SPECULARLIGHTSHADER_H_
 
@@ -9,7 +11,6 @@
 
 using namespace std;
 using namespace DirectX;
-
 
 class SpecularLightShader : public BaseShader
 {

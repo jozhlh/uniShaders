@@ -1,3 +1,7 @@
+// Voronoi Boomtown - UiManager.cpp
+// Josh Hale - 2017
+// An interface between the ImGui UI system and the application
+
 #include "UiManager.h"
 
 UiManager::UiManager()
@@ -17,7 +21,7 @@ UiManager::UiManager()
 	nodeColour = XMFLOAT3(0.7f, 0.98f, 1.0f);
 	centreOfRegionColour = XMFLOAT3(0.8f, 0.4f, 0.64f);
 	basePlateColour = XMFLOAT3(0.2f, 0.09, 0.06);
-	float yOffset = 0.5f;
+	yOffset = 0.5f;
 
 	// Algortihm Variables
 	gridDimensions = XMINT2 (30, 30);
@@ -40,7 +44,6 @@ UiManager::~UiManager()
 {
 
 }
-
 
 void UiManager::ShowHelpMarker(const char* desc)
 {
@@ -145,7 +148,6 @@ void UiManager::ShowUi(bool* p_open)
 			specularColour = XMFLOAT4(speCol[0], speCol[1], speCol[2], speCol[3]);
 				
 			direction = XMFLOAT3(dir[0], dir[1], dir[2]);
-			// need to normalise direction
 
 			ImGui::TreePop();
 		}

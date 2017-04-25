@@ -1,5 +1,7 @@
-// Light shader.h
-// Basic single light shader setup
+// Voronoi Boomtown - SpecularTerrainShader.h
+// Josh Hale - 2017
+// Loads a shader for a single specular light used to render terrain
+
 #ifndef _SPECULARTERRAINSHADER_H_
 #define _SPECULARTERRAINSHADER_H_
 

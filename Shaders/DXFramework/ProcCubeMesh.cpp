@@ -1,11 +1,21 @@
+// ProcCubeMesh.cpp
+// Josh Hale - 2017
+// Generates cuboids with the top surface aligned with noise, for noise on a grid
+
 #include "ProcCubeMesh.h"
 
-// Cube Mesh
-// Generates a cube.
-
-
+// Constructor
+/// PARAMETERS
+// device, deviceContext - pointer to the D3D device information
+// textureFilename - the location of the relevant texture file
+// cellX, cellZ - the cell location in the grid
+// xSegments, zSegments - how large the grid is
+// gap - the gap between the edge of the mesh and the edge of the cell, to create gridlines
+// noise - parameters to be passed to the noise engine
+// noiseEngine - handles noise calculations
 ProcCubeMesh::ProcCubeMesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, WCHAR* textureFilename, int cellX, int cellZ, int xSegments, int zSegments, float gap, NoiseData* noise, ImprovedNoise* noiseEngine)
 {
+	// Store calculation variables
 	x = cellX;
 	z = cellZ;
 	xSegs = xSegments;
@@ -13,11 +23,9 @@ ProcCubeMesh::ProcCubeMesh(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 	m_Noise = noise;
 	perlin = noiseEngine;
 	border = gap;
+
 	// Initialize the vertex and index buffer that hold the geometry for the triangle.
 	InitBuffers(device);
-
-	// Load the texture for this model.
-	//LoadTexture(device, deviceContext, textureFilename);
 }
 
 ProcCubeMesh::~ProcCubeMesh()
@@ -26,19 +34,23 @@ ProcCubeMesh::~ProcCubeMesh()
 	BaseMesh::~BaseMesh();
 }
 
+// Calculate mesh vertices and store in buffers
+/// PARAMETERS
+// device - pointer to the D3D device
 void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 {
+	// Declare local variables
 	VertexType* vertices;
 	unsigned long* indices;
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
-	// Set the gap between cells (for gridlines)
 
 	// Calculate vertex count
-	// 6 vertices per quad, times 6 for each face
+	// 6 vertices per quad, times 6 for each face (- 6 for non-visible bottom face)
 	// Set the number of vertices in the vertex array.
 	m_vertexCount = 30;
 
+	// If needed this only draws the top face to lower poly count
 	//if (x < (xSegs - 1))
 	//{
 	//	// don't create right face
@@ -69,8 +81,10 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 	// Create the index array.
 	indices = new unsigned long[m_indexCount];
 
+	// Calculate scale of the top face of the cube 
 	float size = 1.0f - border;
 	float nSize = 0.5f * size * m_Noise->scaleModifier;
+
 	// Calculate height of the top face vertices for the cube
 	float height010 = GetHeight(x - nSize, z - nSize);
 	float height011 = GetHeight(x - nSize, z + nSize);
@@ -87,6 +101,7 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 	XMFLOAT3 vertex011 = XMFLOAT3(-size, height011 * m_Noise->Height, size);
 	XMFLOAT3 vertex111 = XMFLOAT3(size, height111 * m_Noise->Height, size);
 
+	// Calculate and set normals
 	XMFLOAT3 up0 = Cross(Subtract(vertex011, vertex010), Subtract(vertex111, vertex011));
 	XMFLOAT3 up1 = Cross(Subtract(vertex111, vertex110), Subtract(vertex110, vertex010));
 	XMFLOAT3 down = XMFLOAT3(0, -1, 0);
@@ -95,12 +110,13 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 	XMFLOAT3 front = XMFLOAT3(0, 0, -1);
 	XMFLOAT3 back = XMFLOAT3(0, 0, 1);
 
+	// Set texture coordinates
 	XMFLOAT2 tx00 = XMFLOAT2(0, 0);
 	XMFLOAT2 tx01 = XMFLOAT2(0, 1);
 	XMFLOAT2 tx10 = XMFLOAT2(1, 0);
 	XMFLOAT2 tx11 = XMFLOAT2(1, 1);
 
-	// Assign vertex positions to correct vertices
+	// Assign vertex positions, normals and texture coordinates to correct vertices
 	int i = 0;
 	XMFLOAT3 normal = front;
 	//if (!(z > 0))
@@ -274,40 +290,7 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 	vertices[i].texture = tx11;
 	indices[i] = i;
 	i++;
-	/*
-	// bottom
-	normal = down;
-	vertices[i].position = vertex001;
-	vertices[i].normal = normal;
-	vertices[i].texture = tx00;
-	indices[i] = i;
-	i++;
-	vertices[i].position = vertex100;
-	vertices[i].normal = normal;
-	vertices[i].texture = tx11;
-	indices[i] = i;
-	i++;
-	vertices[i].position = vertex000;
-	vertices[i].normal = normal;
-	vertices[i].texture = tx10;
-	indices[i] = i;
-	i++;
-	vertices[i].position = vertex001;
-	vertices[i].normal = normal;
-	vertices[i].texture = tx00;
-	indices[i] = i;
-	i++;
-	vertices[i].position = vertex101;
-	vertices[i].normal = normal;
-	vertices[i].texture = tx10;
-	indices[i] = i;
-	i++;
-	vertices[i].position = vertex100;
-	vertices[i].normal = normal;
-	vertices[i].texture = tx11;
-	indices[i] = i;
-	//i++;*/
-
+	
 	// Set up the description of the static vertex buffer.
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	vertexBufferDesc.ByteWidth = sizeof(VertexType)* m_vertexCount;
@@ -348,6 +331,11 @@ void ProcCubeMesh::InitBuffers(ID3D11Device* device)
 	indices = 0;
 }
 
+// Returns a value of the noise at the point sampled
+/// PARAMETERS
+// xPos, zPos - vertex position in the x- and z-axis for sampling a location in noise
+/// OUTPUT
+// float - 0 < n < 1 value representing the noise at the location sampled
 float ProcCubeMesh::GetHeight(float xPos, float zPos)
 {
 	float noiseX = m_Noise->Resolution * xPos / xSegs + m_Noise->Location.x;
@@ -355,6 +343,11 @@ float ProcCubeMesh::GetHeight(float xPos, float zPos)
 	return (float)perlin->noise(noiseX, 0.0f, noiseZ);
 }
 
+// Returns the cross product of two vectors stored as XMFLOAT3's
+/// PARAMETERS
+// a, b - vectors to be crossed
+/// OUTPUT
+// XMFLOAT3 - the result of the cross product
 XMFLOAT3 ProcCubeMesh::Cross(XMFLOAT3 a, XMFLOAT3 b)
 {
 	XMFLOAT3 c = XMFLOAT3();
@@ -364,6 +357,11 @@ XMFLOAT3 ProcCubeMesh::Cross(XMFLOAT3 a, XMFLOAT3 b)
 	return c;
 }
 
+// Returns the result of a vector subtraction of two XMFLOAT3's
+/// PARAMETERS
+// a, b - vector b is subtracted from vector a
+/// OUTPUT
+// XMFLOAT3 - the result of the subtraction
 XMFLOAT3 ProcCubeMesh::Subtract(XMFLOAT3 a, XMFLOAT3 b)
 {
 	XMFLOAT3 c = XMFLOAT3();

@@ -1,12 +1,13 @@
-// Vertical blur shader
-#include "verticalblurshader.h"
+// VoronoiBoomtown - VerticalBlurShader.cpp
+// Josh Hale - 2017
+// Loads vertical blur shaders (vs and ps) and passes screen height to shaders, for sample coordinate calculation
 
+#include "verticalblurshader.h"
 
 VerticalBlurShader::VerticalBlurShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 	InitShader(L"shaders/verticalBlur_vs.hlsl", L"shaders/verticalBlur_ps.hlsl");
 }
-
 
 VerticalBlurShader::~VerticalBlurShader()
 {
@@ -41,7 +42,6 @@ VerticalBlurShader::~VerticalBlurShader()
 	//Release base shader components
 	BaseShader::~BaseShader();
 }
-
 
 void VerticalBlurShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 {
@@ -94,7 +94,6 @@ void VerticalBlurShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 	m_device->CreateBuffer(&screenSizeBufferDesc, NULL, &m_ScreenSizeBuffer);
 
 }
-
 
 void VerticalBlurShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, float height, XMFLOAT3 blurWeights)
 {

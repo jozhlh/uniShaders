@@ -1,3 +1,7 @@
+// Voronoi Boomtown - ModelBank.cpp
+// Josh Hale - 2017
+// A container for model and texture data required by the application
+
 #include "ModelBank.h"
 
 ModelBank::ModelBank()
@@ -8,6 +12,7 @@ ModelBank::~ModelBank()
 {
 }
 
+// Load models and textures from file
 void ModelBank::Init(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
 {
 

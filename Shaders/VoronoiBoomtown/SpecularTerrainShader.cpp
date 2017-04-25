@@ -1,12 +1,13 @@
-// texture shader.cpp
-#include "SpecularTerrainShader.h"
+// Voronoi Boomtown - SpecularTerrainShader.cpp
+// Josh Hale - 2017
+// Loads a shader for a single specular light used to render terrain
 
+#include "SpecularTerrainShader.h"
 
 SpecularTerrainShader::SpecularTerrainShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 	InitShader(L"shaders/light_vs.hlsl", L"shaders/terrain_ps.hlsl");
 }
-
 
 SpecularTerrainShader::~SpecularTerrainShader()
 {
@@ -41,7 +42,6 @@ SpecularTerrainShader::~SpecularTerrainShader()
 	//Release base shader components
 	BaseShader::~BaseShader();
 }
-
 
 void SpecularTerrainShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 {
@@ -111,7 +111,6 @@ void SpecularTerrainShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 
 }
 
-
 void SpecularTerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, 
 	Light* light, XMFLOAT3 cameraPos, int regionNum, XMFLOAT3 terrainBaseColor, bool identify, int numOfRegions)
 {
@@ -149,7 +148,7 @@ void SpecularTerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceConte
 	// Now set the constant buffer in the vertex shader with the updated values.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-	//Additional
+	// Additional
 	// Send light data to pixel shader
 	deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	lightPtr = (LightBufferType*)mappedResource.pData;

@@ -1,12 +1,13 @@
-// texture shader.cpp
-#include "specularlightshader.h"
+// Voronoi Boomtown - SpecularLightShader.cpp
+// Josh Hale - 2017
+// Loads shaders for a single specular light used to render models
 
+#include "specularlightshader.h"
 
 SpecularLightShader::SpecularLightShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 	InitShader(L"shaders/light_vs.hlsl", L"shaders/light_ps.hlsl");
 }
-
 
 SpecularLightShader::~SpecularLightShader()
 {
@@ -41,7 +42,6 @@ SpecularLightShader::~SpecularLightShader()
 	//Release base shader components
 	BaseShader::~BaseShader();
 }
-
 
 void SpecularLightShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 {
@@ -111,7 +111,6 @@ void SpecularLightShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 
 }
 
-
 void SpecularLightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light, XMFLOAT3 cameraPos, bool tile, XMFLOAT3 tileColour)
 {
 	HRESULT result;
@@ -148,7 +147,7 @@ void SpecularLightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext
 	// Now set the constant buffer in the vertex shader with the updated values.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-	//Additional
+	// Additional
 	// Send light data to pixel shader
 	deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	lightPtr = (LightBufferType*)mappedResource.pData;

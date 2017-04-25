@@ -1,6 +1,6 @@
-// Horizontal blur shader handler
-// Loads horizontal blur shaders (vs and ps)
-// Passes screen width to shaders, for sample coordinate calculation
+// VoronoiBoomtown - HorizontalBlurShader.h
+// Josh Hale - 2017
+// Loads horizontal blur shaders (vs and ps) and passes screen width to shaders, for sample coordinate calculation
 
 #ifndef _HORIZONTALBLURSHADER_H_
 #define _HORIZONTALBLURSHADER_H_

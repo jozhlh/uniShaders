@@ -1,3 +1,7 @@
+// Voronoi Boomtown - ModelBank.h
+// Josh Hale - 2017
+// A container for model and texture data required by the application
+
 #ifndef _MODELBANK_H
 #define _MODELBANK_H
 

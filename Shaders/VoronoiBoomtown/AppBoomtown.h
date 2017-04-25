@@ -1,10 +1,12 @@
-// VoronoiBoomtown -  AppBoomtown.h
+// VoronoiBoomtown - AppBoomtown.h
+// Josh Hale - 2017
+// Application which generates a town using voronoi regiones on a noise terrain with clumped asset placement and Gaussian Blur
+
 #ifndef _APPBOOMTOWN_H
 #define _APPBOOMTOWN_H
 
 // Includes
 #include "../DXFramework/baseapplication.h"
-//#include "D3D.h"
 #include "../DXFramework/orthomesh.h"
 #include "../DXFramework/rendertexture.h"
 #include "../DXFramework/Timer.h"
@@ -17,8 +19,6 @@
 #include "VoronoiMap.h"
 #include "ModelBank.h"
 
-#define ANIM_CAP 20.0f
-
 class AppBoomtown : public BaseApplication
 {
 public:
@@ -26,9 +26,11 @@ public:
 	~AppBoomtown();
 	void init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input*);
 
+	// Logic Methods
 	bool Frame();
 
 protected:
+	// Rendering Methods
 	bool RenderToTexture();
 	void DownSample(RenderTexture* sourceTexture);
 	void HorizontalBlur();
@@ -57,7 +59,6 @@ private:
 
 	// Geometry
 	OrthoMesh* m_OrthoMesh;
-	Model* m_testModel0;
 
 	// Lights
 	Light* m_Light;
@@ -67,7 +68,6 @@ private:
 	VoronoiMap* m_VoronoiMap;
 
 	// Other variables
-	float sphereLerp;
 	XMFLOAT2 screenDimensions;
 };
 
